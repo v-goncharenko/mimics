@@ -4,7 +4,7 @@ from ..types import Optional
 from .. import extractors as ex
 from .basic_transformers import Transformer, Identical, Transposer, Flattener
 from .transformers import (
-    Stabilzer, 
+    Stabilzer,
     EyesRotator,
     Scaler,
     Centerer,
@@ -17,10 +17,10 @@ from .transformers import (
 
 
 def get_preprocessing(
-    points: str='brows',
+    points: str = 'brows',
     *,
-    steps: Optional[int]=None,
-    window_length: int=7, # emphirical default for 30 fps
+    steps: Optional[int] = None,
+    window_length: int = 7,  # emphirical default for 30 fps
 ):
     '''Makes preprocessing pipeline for face shapes
 
@@ -32,20 +32,9 @@ def get_preprocessing(
 
     transformers = (
         Stabilzer(ex.inds_68['nose']),
-        EyesRotator(
-            ex.inds_68['left_eye'],
-            ex.inds_68['right_eye'],
-        ),
-        Scaler(
-            ex.inds_68['left_eye'],
-            ex.inds_68['right_eye'],
-            axis=0,
-        ),
-        Scaler(
-            ex.inds_68['eyes'],
-            ex.inds_68['lips'],
-            axis=1,
-        ),
+        EyesRotator(ex.inds_68['left_eye'], ex.inds_68['right_eye']),
+        Scaler(ex.inds_68['left_eye'], ex.inds_68['right_eye'], axis=0),
+        Scaler(ex.inds_68['eyes'], ex.inds_68['lips'], axis=1),
         Centerer(ex.inds_68[points]),
         Smoother(window_length, 'hamming'),
         ChannelsSelector(ex.inds_68[points]),

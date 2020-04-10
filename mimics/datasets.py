@@ -17,6 +17,7 @@ class FaceLandmarksDataset(torch_data.Dataset):
 
     Markup have to have 'filename' column with name of videofile
     '''
+
     markup_filename = 'markup.csv'
     precomputed_dir = 'precomputed'
 
@@ -24,21 +25,23 @@ class FaceLandmarksDataset(torch_data.Dataset):
         self,
         path: Directory,
         extractor: VideoFaceLandmarksExtractor,
-        transformer: Transformer=None,
+        transformer: Transformer = None,
     ):
         self.path = path
         self.extractor = extractor
         self.transformer = transformer
 
-        self.markup = pd.read_csv(self.path/self.markup_filename)
+        self.markup = pd.read_csv(self.path / self.markup_filename)
 
-        precomp_path = self.path/self.precomputed_dir/f'{extractor.__class__.__name__}.pickle'
+        precomp_path = (
+            self.path / self.precomputed_dir / f'{extractor.__class__.__name__}.pickle'
+        )
         if precomp_path.exists():
             with open(precomp_path, 'rb') as file:
                 self._data = pickle.load(file)
         else:
             self._data = self.extractor.fit_transform(
-                [self.path/filename for filename in self.markup['filename']]
+                [self.path / filename for filename in self.markup['filename']]
             )
             precomp_path.parent.mkdir(exist_ok=True)
             with open(precomp_path, 'wb') as file:
@@ -65,12 +68,12 @@ class FaceLandmarksDataset(torch_data.Dataset):
         return self.markup['hypomimia'].values
 
     def filename(self, index: int):
-        return self.path/self.markup.loc[index, 'filename']
+        return self.path / self.markup.loc[index, 'filename']
 
     def fps(self, index: int):
         return self.markup.loc[index, 'fps']
 
-    def video(self, index: int, *, html5: bool=True, save_to: Optional[File]=None):
+    def video(self, index: int, *, html5: bool = True, save_to: Optional[File] = None):
         return points_on_video(
             self.filename(index),
             self[index],

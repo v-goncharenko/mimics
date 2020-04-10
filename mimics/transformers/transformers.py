@@ -12,7 +12,8 @@ class Stabilzer(Transformer):
     '''Subtracts mean of points with given indexes from each frame's points
         thus it stabilizer each frame wrt given points
     '''
-    def __init__(self, indexes: tuple=tuple(range(27, 36))):
+
+    def __init__(self, indexes: tuple = tuple(range(27, 36))):
         self.indexes = indexes
 
     def transform(self, x):
@@ -32,6 +33,7 @@ class Stabilzer(Transformer):
 class EyesRotator(Transformer):
     '''Rotates points to lay fixed points (brows) on horizontal line
     '''
+
     def __init__(self, left_indexes: tuple, right_indexes: tuple):
         self.left_indexes = left_indexes
         self.right_indexes = right_indexes
@@ -46,14 +48,15 @@ class EyesRotator(Transformer):
             angle = utils.angle(np.array([-1, 0]), left - right)
             self.angles.append(angle)
             R = utils.rotation(-angle)
-            result.append(session@R.T)
+            result.append(session @ R.T)
         return result
 
 
 class Scaler(Transformer):
     '''Scales mean of given points over axis to have given distance
     '''
-    def __init__(self, inds1: tuple, inds2: tuple, axis: int, distance: float=100.):
+
+    def __init__(self, inds1: tuple, inds2: tuple, axis: int, distance: float = 100.0):
         self.axis = axis
         self.inds1 = inds1
         self.inds2 = inds2
@@ -77,6 +80,7 @@ class Scaler(Transformer):
 class Centerer(Transformer):
     '''Centers points such that means of given points are in (0, 0) point
     '''
+
     def __init__(self, inds: tuple):
         self.inds = inds
 
@@ -91,7 +95,8 @@ class Centerer(Transformer):
 
 class ChannelsSelector(Transformer):
     '''Filters face landmarks according to provided channels list'''
-    def __init__(self, channels: tuple=tuple(range(17, 27))):
+
+    def __init__(self, channels: tuple = tuple(range(17, 27))):
         self.channels = channels
 
     def transform(self, x: List[np.ndarray]) -> List[np.ndarray]:
@@ -101,7 +106,10 @@ class ChannelsSelector(Transformer):
 class Smoother(Transformer):
     '''Smooths given batch of signals with given window via convolution
     '''
-    def __init__(self, window_length: int, window_type: str='hamming', mode: str='valid'):
+
+    def __init__(
+        self, window_length: int, window_type: str = 'hamming', mode: str = 'valid'
+    ):
         '''
         Args:
             window_type: can be found at https://docs.scipy.org/doc/numpy/reference/routines.window.html
@@ -112,27 +120,33 @@ class Smoother(Transformer):
 
     def transform(self, batch):
         window = getattr(np, self.window_type)(self.window_length) / self.window_length
-        window /= window.sum() # normalization to have same units as input
+        window /= window.sum()  # normalization to have same units as input
         return [
             np.apply_along_axis(np.convolve, 0, item, window, mode='valid')
-                for item in batch
+            for item in batch
         ]
 
 
 class PcaReducer(Transformer):
     '''Reduced less variational dimention of the points
     '''
+
     def __init__(self, n_components=1):
         self.n_components = n_components
 
     def transform(self, batch):
         pca = PCA(self.n_components)
         return [
-            np.squeeze(np.stack([
-                pca.fit_transform(item[:, point, :])
-                    for point in range(item.shape[1])
-            ], 1))
-                for item in batch
+            np.squeeze(
+                np.stack(
+                    [
+                        pca.fit_transform(item[:, point, :])
+                        for point in range(item.shape[1])
+                    ],
+                    1,
+                )
+            )
+            for item in batch
         ]
 
 
@@ -141,13 +155,11 @@ class PositiveCorrelator(Transformer):
 
     Input have to be shaped (#channels, #samples)
     '''
+
     def transform(self, batch):
         result = []
         for item in batch:
-            corrs = np.sign([
-                np.corrcoef(item[0], channel)[0, 1]
-                    for channel in item
-            ])
+            corrs = np.sign([np.corrcoef(item[0], channel)[0, 1] for channel in item])
             result.append(corrs[:, None] * item)
         return result
 
@@ -157,14 +169,24 @@ class ButterFilter(Transformer):
 
     This is experimental! First exps failed =(
     '''
-    def __init__(self, frequency: int, lowpass: int, highpass: int, order: int=4, type: str='bandpass') -> None:
+
+    def __init__(
+        self,
+        frequency: int,
+        lowpass: int,
+        highpass: int,
+        order: int = 4,
+        type: str = 'bandpass',
+    ) -> None:
         self.frequency = frequency
         self.order = order
         self.highpass = highpass
         self.lowpass = lowpass
         self.type = type
 
-        normal_cutoff = [a / (0.5 * self.frequency) for a in (self.highpass, self.lowpass)]
+        normal_cutoff = [
+            a / (0.5 * self.frequency) for a in (self.highpass, self.lowpass)
+        ]
         self.filter = signal.butter(self.order, normal_cutoff, btype=type)
 
     def transform(self, x):

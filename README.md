@@ -48,7 +48,7 @@ Points are reffered "left" and "right" always from person's point of view.
 
 ## HRNets
 
-[link](https://github.com/HRNet/HRNet-Facial-Landmark-Detection) - 
+[link](https://github.com/HRNet/HRNet-Facial-Landmark-Detection) -
 
 ## Face Alignment
 
@@ -111,7 +111,7 @@ Ideas:
 
 * statsmodels.tsa.seasonal.seasonal_decompose - apply to mean of all channels
     plot detected frequency and try to split by it
-* scipy findpeaks - 
+* scipy findpeaks -
 * fft analysis
 
 ## Classification algos variants

@@ -13,7 +13,7 @@ from .utils import frames, open_video
 from .types import Iterable, Optional, File, Shapes
 
 
-def plot_joint(dataset, title='', *, orient_up: bool=True, figsize=(5, 5)):
+def plot_joint(dataset, title='', *, orient_up: bool = True, figsize=(5, 5)):
     '''Plots first frame of each record of the dataset
 
     Args:
@@ -29,19 +29,20 @@ def plot_joint(dataset, title='', *, orient_up: bool=True, figsize=(5, 5)):
     plt.show()
 
 
-def anim2html(anim, html5: bool=True):
+def anim2html(anim, html5: bool = True):
     html_video = anim.to_html5_video() if html5 else anim.to_jshtml()
-    plt.close() # this is to prevent notebook from displaying animation twice
+    plt.close()  # this is to prevent notebook from displaying animation twice
     return HTML(html_video)
+
 
 def shapes_animation(
     shapes,
     interval: float,
     *,
-    orient_up: bool=True,
-    title: str='',
-    figsize: tuple=(5, 5),
-    html5: bool=True,
+    orient_up: bool = True,
+    title: str = '',
+    figsize: tuple = (5, 5),
+    html5: bool = True,
 ):
     '''Makes html display element of given shapes animation
     Args:
@@ -66,14 +67,10 @@ def shapes_animation(
 
     def update_line(step: int):
         line.set_data(shapes[step, :, 0], shapes[step, :, 1])
-        return (line, )
+        return (line,)
 
     anim = animation.FuncAnimation(
-        figure,
-        update_line,
-        len(shapes),
-        interval=interval,
-        blit=True,
+        figure, update_line, len(shapes), interval=interval, blit=True,
     )
 
     return anim2html(anim, html5)
@@ -84,10 +81,10 @@ def points_on_video(
     shapes: Shapes,
     fps: int,
     *,
-    title: str='',
-    figsize: tuple=(10, 10),
-    html5: bool=True,
-    save_to: Optional[File]=None,
+    title: str = '',
+    figsize: tuple = (10, 10),
+    html5: bool = True,
+    save_to: Optional[File] = None,
 ):
     '''Draws points from `shapes` on `video` and returns either html animation
         or saves animation on disk
@@ -129,53 +126,57 @@ def points_on_video(
         return anim2html(anim, html5)
 
 
-class Visualizer(object):	
-    '''Visualizes videow with face landmarks either on live video or to file	
-    '''	
-    def __init__(self, fps=30, fourcc='VP80', color: tuple=(0, 255, 255)):	
-        '''	
-        Args:	
-            fps: frame fate of videos to visualize. This should be read from	
-                the video but sometimes it's corrupted, so this default is used	
-                Default for webcams is 30 for some reason.	
-            fourcc: type of codec to use. Typical choices:	
-                * 'XVID' - for .mp4 for fast encoding, lacks of formats support	
-                * 'MPEG' - for .mp4, .avi standard encoding	
-                * 'VP80' - Google's encoder, wide rage of fromats, a bit slow	
-                * 'VP90' - larger files, slower (maybe quality is better)	
-            color: 3 int tuple with RGB code of the color to draw points	
-        '''	
-        self.fps = fps	
-        self.fourcc = fourcc	
-        self.color = color	
+class Visualizer(object):
+    '''Visualizes videow with face landmarks either on live video or to file
+    '''
 
-    def show(self, video: Path, shapes: np.ndarray, title: str='') -> None:	
-        '''Plays video through cv2 windows	
-        Args:	
-            video: path to video file on disk	
-            shapes: result of :py:funct:`.extractors.VideoFaceLandmarksExtractor.transform`	
-            title: window title	
-        '''	
-        delay = int(1000 / self.fps)	
+    def __init__(self, fps=30, fourcc='VP80', color: tuple = (0, 255, 255)):
+        '''
+        Args:
+            fps: frame fate of videos to visualize. This should be read from
+                the video but sometimes it's corrupted, so this default is used
+                Default for webcams is 30 for some reason.
+            fourcc: type of codec to use. Typical choices:
+                * 'XVID' - for .mp4 for fast encoding, lacks of formats support
+                * 'MPEG' - for .mp4, .avi standard encoding
+                * 'VP80' - Google's encoder, wide rage of fromats, a bit slow
+                * 'VP90' - larger files, slower (maybe quality is better)
+            color: 3 int tuple with RGB code of the color to draw points
+        '''
+        self.fps = fps
+        self.fourcc = fourcc
+        self.color = color
 
-        for frame, shape in zip(frames(video), shapes):	
-            for point in shape:	
-                cv2.circle(frame, tuple(point), 1, self.color)	
-            cv2.imshow(title, frame)	
+    def show(self, video: Path, shapes: np.ndarray, title: str = '') -> None:
+        '''Plays video through cv2 windows
+        Args:
+            video: path to video file on disk
+            shapes: result of :py:funct:`.extractors.VideoFaceLandmarksExtractor.transform`
+            title: window title
+        '''
+        delay = int(1000 / self.fps)
 
-            if cv2.waitKey(delay) & 0xFF == ord('q'):	
-                break	
+        for frame, shape in zip(frames(video), shapes):
+            for point in shape:
+                cv2.circle(frame, tuple(point), 1, self.color)
+            cv2.imshow(title, frame)
 
-        cv2.destroyAllWindows()	
+            if cv2.waitKey(delay) & 0xFF == ord('q'):
+                break
 
-    def write(self, video: Path, shapes: Iterable[np.ndarray], out: Path):	
-        '''Writes video with shapes drawn on top	
-        '''	
-        with open_video(video) as in_video:	
-            fourcc = cv2.VideoWriter_fourcc(*self.fourcc)	
-            frame_shape = (int(in_video.get(cv2.CAP_PROP_FRAME_WIDTH)), int(in_video.get(cv2.CAP_PROP_FRAME_HEIGHT)))	
-            with open_video(out, 'w', fourcc, self.fps, frame_shape) as out_video:	
-                for frame, shape in zip(frames(in_video, rgb=False), shapes):	
-                    for point in shape:	
-                        cv2.circle(frame, tuple(point), 1, self.color)	
-                    out_video.write(frame)	
+        cv2.destroyAllWindows()
+
+    def write(self, video: Path, shapes: Iterable[np.ndarray], out: Path):
+        '''Writes video with shapes drawn on top
+        '''
+        with open_video(video) as in_video:
+            fourcc = cv2.VideoWriter_fourcc(*self.fourcc)
+            frame_shape = (
+                int(in_video.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                int(in_video.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+            )
+            with open_video(out, 'w', fourcc, self.fps, frame_shape) as out_video:
+                for frame, shape in zip(frames(in_video, rgb=False), shapes):
+                    for point in shape:
+                        cv2.circle(frame, tuple(point), 1, self.color)
+                    out_video.write(frame)

@@ -14,8 +14,9 @@ from .utils import open_video, frames
 from .types import File
 
 
-default_predictor_path = \
-    Path(__file__).with_name('dlib-models')/'shape_predictor_68_face_landmarks.dat'
+default_predictor_path = (
+    Path(__file__).with_name('dlib-models') / 'shape_predictor_68_face_landmarks.dat'
+)
 
 # groups of indexes according to 300-W dataset https://ibug.doc.ic.ac.uk/resources/300-W/
 inds_68 = {
@@ -35,6 +36,7 @@ class VideoFaceLandmarksExtractor(transformers.Transformer):
 
     Provides scarfold implementations and signatures for methods
     '''
+
     def transform(self, videos: Iterable[Path]) -> List[np.ndarray]:
         '''Extracts face landmarks from given videos
 
@@ -55,11 +57,7 @@ class VideoFaceLandmarksExtractor(transformers.Transformer):
 class DlibExtractor(VideoFaceLandmarksExtractor):
     indexes = inds_68
 
-    def __init__(
-        self,
-        predictor_path: Path=default_predictor_path,
-        n_jobs=-1,
-    ) -> None:
+    def __init__(self, predictor_path: Path = default_predictor_path, n_jobs=-1) -> None:
         '''
         Args:
             predictor_path: path to file `shape_predictor_68_face_landmarks.dat`
@@ -74,8 +72,7 @@ class DlibExtractor(VideoFaceLandmarksExtractor):
         '''
         delayed_extract = delayed(DlibExtractor.extract_shapes)
         dataset = Parallel(n_jobs=self.n_jobs)(
-            delayed_extract(video_path, self.predictor_path)
-                for video_path in videos
+            delayed_extract(video_path, self.predictor_path) for video_path in videos
         )
         return dataset
 
@@ -96,8 +93,7 @@ class DlibExtractor(VideoFaceLandmarksExtractor):
 
     @staticmethod
     def extract_shapes(
-        video_path: Path,
-        predictor_path: Path=default_predictor_path
+        video_path: Path, predictor_path: Path = default_predictor_path,
     ) -> np.ndarray:
         '''Extracts points from given video
 
@@ -110,7 +106,8 @@ class DlibExtractor(VideoFaceLandmarksExtractor):
         # first detect face position
         for frame in frames(video_path):
             face = DlibExtractor.detect_face(frame)
-            if face is not None: break
+            if face is not None:
+                break
 
         predictor = dlib.shape_predictor(predictor_path.as_posix())
         extracted = []
@@ -125,27 +122,36 @@ class DlibExtractor(VideoFaceLandmarksExtractor):
 class FaExtractor(VideoFaceLandmarksExtractor):
     '''Face-Alignment based extractor https://github.com/1adrianb/face-alignment
     '''
-    def __init__(self, device='cpu', *, verbose: bool=False):
-        if str(device) == 'cpu':
-            warnings.warn('Using CPU calculations which will take a loooong time to evaluate')
 
-        self.extractor = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, device=str(device))
+    def __init__(self, device='cpu', *, verbose: bool = False):
+        if str(device) == 'cpu':
+            warnings.warn(
+                'Using CPU calculations which will take a loooong time to evaluate'
+            )
+
+        self.extractor = face_alignment.FaceAlignment(
+            face_alignment.LandmarksType._2D, device=str(device)
+        )
         self.verbose = verbose
 
     def _transform(self, videos):
         dataset = []
         for i, video_path in enumerate(videos):
-            if self.verbose: print(f'Extracting {i} of {len(videos)}: {video_path.name}')
+            if self.verbose:
+                print(f'Extracting {i} of {len(videos)}: {video_path.name}')
 
             # first detect face position
             for frame in frames(video_path):
                 faces = self.extractor.face_detector.detect_from_image(frame)
-                if len(faces) == 1: break
+                if len(faces) == 1:
+                    break
 
-            shapes = np.array([
-                self.extractor.get_landmarks(frame, faces)[0]
+            shapes = np.array(
+                [
+                    self.extractor.get_landmarks(frame, faces)[0]
                     for frame in frames(video_path)
-            ])
+                ]
+            )
             dataset.append(shapes)
         return dataset
 
@@ -153,12 +159,13 @@ class FaExtractor(VideoFaceLandmarksExtractor):
 class SanExtractor(VideoFaceLandmarksExtractor):
     '''Source https://github.com/v-goncharenko/landmark-detection
     '''
+
     def __init__(
         self,
-        model_path: File='../data/checkpoint_49.pth.tar',
+        model_path: File = '../data/checkpoint_49.pth.tar',
         device=None,
         *,
-        verbose: bool=False,
+        verbose: bool = False,
     ):
         self.detector = SAN.SanLandmarkDetector(model_path, device)
         self.verbose = verbose
@@ -166,17 +173,18 @@ class SanExtractor(VideoFaceLandmarksExtractor):
     def _transform(self, videos):
         dataset = []
         for i, video_path in enumerate(videos):
-            if self.verbose: print(f'Extracting {i} of {len(videos)}: {video_path.name}')
+            if self.verbose:
+                print(f'Extracting {i} of {len(videos)}: {video_path.name}')
 
             # first detect face position via Dlib
             for frame in frames(video_path):
                 face = DlibExtractor.detect_face(frame)
-                if face is not None: break
+                if face is not None:
+                    break
             face = (face.left(), face.top(), face.right(), face.bottom())
 
-            shapes = np.array([
-                self.detector.detect(frame, face)[0]
-                    for frame in frames(video_path)
-            ])
+            shapes = np.array(
+                [self.detector.detect(frame, face)[0] for frame in frames(video_path)]
+            )
             dataset.append(shapes)
         return dataset

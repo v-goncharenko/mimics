@@ -6,13 +6,14 @@ import cv2
 import numpy as np
 
 import matplotlib
+
 matplotlib.use('Agg', force=False)
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 
 @contextmanager
-def open_video(video_path: Union[Path, str], mode: str='r', *args):
+def open_video(video_path: Union[Path, str], mode: str = 'r', *args):
     '''Context manager to work with cv2 videos
         Mimics python's standard `open` function
 
@@ -40,13 +41,17 @@ def open_video(video_path: Union[Path, str], mode: str='r', *args):
         video = cv2.VideoWriter(video_path.as_posix(), *args)
     else:
         raise ValueError(f'Incorrect open mode "{mode}"; "r" or "w" expected!')
-    if not video.isOpened(): raise ValueError(f'Video {video_path} is not opened!')
+    if not video.isOpened():
+        raise ValueError(f'Video {video_path} is not opened!')
     try:
         yield video
     finally:
         video.release()
 
-def frames(video: Union[Path, str, cv2.VideoCapture], rgb: bool=True) -> Iterable[np.ndarray]:
+
+def frames(
+    video: Union[Path, str, cv2.VideoCapture], rgb: bool = True
+) -> Iterable[np.ndarray]:
     '''Generator of frames of the video provided
 
     Args:
@@ -67,6 +72,7 @@ def frames(video: Union[Path, str, cv2.VideoCapture], rgb: bool=True) -> Iterabl
             if rgb:
                 frame = frame[:, :, ::-1]
             yield frame
+
 
 def get_meta(video_path: Path):
     '''Extracts main video meta data as dict
@@ -107,7 +113,7 @@ def convert_bbox(bbox: tuple, fr: str, to: str) -> tuple:
     '''
     if fr == 'xywh' and to == 'tlbr':
         x, y, w, h = bbox
-        return [ x, y, x + w, y + h ]
+        return [x, y, x + w, y + h]
     elif fr == 'tlbr' and to == 'xywh':
         l, t, r, b = bbox
         return [l, t, r - l, b - t]
@@ -119,10 +125,10 @@ def convert_bbox(bbox: tuple, fr: str, to: str) -> tuple:
 
 def plot_image(
     image,
-    title: str='',
+    title: str = '',
     *,
-    figsize: tuple=(20, 5),
-    boxes: list=[],
+    figsize: tuple = (20, 5),
+    boxes: list = [],
     opencv=True,
     extra_operations=lambda: None,
 ):
@@ -131,26 +137,29 @@ def plot_image(
         remember that matplotlib's coordinates x is horizontal, y is vertical
     extra_operations - lambda with everything you want to do to plt
     '''
-    if opencv: # to reverse colours from BGR
+    if opencv:  # to reverse colours from BGR
         image = image[..., ::-1]
 
     plt.figure(figsize=figsize)
-    plt.imshow(
-        image,
-    )
+    plt.imshow(image,)
     plt.title(title)
     plt.xlabel('Y (first coordinate)')
     plt.ylabel('X (second coordinate)')
     for box in boxes:
         rect = patches.Rectangle(
-            (box[0], box[1]), box[2] - box[0], box[3] - box[1],
-            linewidth=1, edgecolor='r', facecolor='none'
+            (box[0], box[1]),
+            box[2] - box[0],
+            box[3] - box[1],
+            linewidth=1,
+            edgecolor='r',
+            facecolor='none',
         )
         plt.gca().add_patch(rect)
     extra_operations()
     plt.show()
 
-def rotation(angle: float, radians: bool=True):
+
+def rotation(angle: float, radians: bool = True):
     '''Constructs rotation matirx in 2d space
     '''
     if not radians:
@@ -158,17 +167,17 @@ def rotation(angle: float, radians: bool=True):
     c, s = np.cos(angle), np.sin(angle)
     return np.array(((-c, s), (s, c)))
 
+
 def unit_vector(vector):
     """ Returns the unit vector of the vector"""
     return vector / np.linalg.norm(vector)
+
 
 def angle(vector1, vector2):
     """ Returns the angle in radians between given vectors"""
     v1_u = unit_vector(vector1)
     v2_u = unit_vector(vector2)
-    minor = np.linalg.det(
-        np.stack((v1_u[-2:], v2_u[-2:]))
-    )
+    minor = np.linalg.det(np.stack((v1_u[-2:], v2_u[-2:])))
     if minor == 0:
         raise NotImplementedError('Too odd vectors =(')
     return np.sign(minor) * np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
