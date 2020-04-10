@@ -1,0 +1,182 @@
+from pathlib import Path
+from typing import Iterable, List
+import warnings
+
+import cv2
+import dlib
+import numpy as np
+from joblib import Parallel, delayed
+import face_alignment
+import SAN
+
+from . import transformers
+from .utils import open_video, frames
+from .types import File
+
+
+default_predictor_path = \
+    Path(__file__).with_name('dlib-models')/'shape_predictor_68_face_landmarks.dat'
+
+# groups of indexes according to 300-W dataset https://ibug.doc.ic.ac.uk/resources/300-W/
+inds_68 = {
+    'nose': tuple(range(27, 36)),
+    'right_brow': tuple(range(17, 22)),
+    'left_brow': tuple(range(22, 27)),
+    'brows': tuple(range(17, 27)),
+    'lips': tuple(range(48, 68)),
+    'right_eye': tuple(range(36, 42)),
+    'left_eye': tuple(range(42, 48)),
+    'eyes': tuple(range(36, 48)),
+}
+
+
+class VideoFaceLandmarksExtractor(transformers.Transformer):
+    '''Extracts face landmarks from given videos
+
+    Provides scarfold implementations and signatures for methods
+    '''
+    def transform(self, videos: Iterable[Path]) -> List[np.ndarray]:
+        '''Extracts face landmarks from given videos
+
+        Args:
+            X: iterable of paths to videos to extract points from
+
+        Returns:
+            list with ndarrays corresponding to each of given videos
+                each array shaped (#frames, 68, 2) - for each frame in video
+                68 points of dlib extractor with x and y coordinates in the last dimention
+
+        Retruning datatype is list cause videos may have different frames count
+        You may whsh to np.stack results in case of equal length.
+        '''
+        return self._transform(videos)
+
+
+class DlibExtractor(VideoFaceLandmarksExtractor):
+    indexes = inds_68
+
+    def __init__(
+        self,
+        predictor_path: Path=default_predictor_path,
+        n_jobs=-1,
+    ) -> None:
+        '''
+        Args:
+            predictor_path: path to file `shape_predictor_68_face_landmarks.dat`
+                which could be downloaded from oficial dlib site
+            n_jobs: parameter for joblib
+        '''
+        self.predictor_path = predictor_path
+        self.n_jobs = n_jobs
+
+    def _transform(self, videos):
+        '''Implements :py:funct:`.VideoFaceLandmarksExtractor.transform`
+        '''
+        delayed_extract = delayed(DlibExtractor.extract_shapes)
+        dataset = Parallel(n_jobs=self.n_jobs)(
+            delayed_extract(video_path, self.predictor_path)
+                for video_path in videos
+        )
+        return dataset
+
+    @staticmethod
+    def detect_face(image):
+        '''Detects face on image using dlib
+
+        Returns None if no face appears on image,
+            raises ValueError if multiple faces detected
+        '''
+        detector = dlib.get_frontal_face_detector()
+        faces = detector(image)
+        if len(faces) > 1:
+            raise ValueError(f'More than one face on the video! Have {len(faces)}.')
+        if len(faces) == 0:
+            return None
+        return faces[0]
+
+    @staticmethod
+    def extract_shapes(
+        video_path: Path,
+        predictor_path: Path=default_predictor_path
+    ) -> np.ndarray:
+        '''Extracts points from given video
+
+        Note: this function assumes that person's face doesn't change position
+            on all frames!
+
+        Returns:
+            ndarray shaped (#frames, 68, 2) - face landmarks for each frame
+        '''
+        # first detect face position
+        for frame in frames(video_path):
+            face = DlibExtractor.detect_face(frame)
+            if face is not None: break
+
+        predictor = dlib.shape_predictor(predictor_path.as_posix())
+        extracted = []
+
+        for frame in frames(video_path):
+            shape = predictor(frame, face)
+            points = np.array([(s.x, s.y) for s in shape.parts()])
+            extracted.append(points)
+        return np.stack(extracted)
+
+
+class FaExtractor(VideoFaceLandmarksExtractor):
+    '''Face-Alignment based extractor https://github.com/1adrianb/face-alignment
+    '''
+    def __init__(self, device='cpu', *, verbose: bool=False):
+        if str(device) == 'cpu':
+            warnings.warn('Using CPU calculations which will take a loooong time to evaluate')
+
+        self.extractor = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, device=str(device))
+        self.verbose = verbose
+
+    def _transform(self, videos):
+        dataset = []
+        for i, video_path in enumerate(videos):
+            if self.verbose: print(f'Extracting {i} of {len(videos)}: {video_path.name}')
+
+            # first detect face position
+            for frame in frames(video_path):
+                faces = self.extractor.face_detector.detect_from_image(frame)
+                if len(faces) == 1: break
+
+            shapes = np.array([
+                self.extractor.get_landmarks(frame, faces)[0]
+                    for frame in frames(video_path)
+            ])
+            dataset.append(shapes)
+        return dataset
+
+
+class SanExtractor(VideoFaceLandmarksExtractor):
+    '''Source https://github.com/v-goncharenko/landmark-detection
+    '''
+    def __init__(
+        self,
+        model_path: File='../data/checkpoint_49.pth.tar',
+        device=None,
+        *,
+        verbose: bool=False,
+    ):
+        self.detector = SAN.SanLandmarkDetector(model_path, device)
+        self.verbose = verbose
+
+    def _transform(self, videos):
+        dataset = []
+        for i, video_path in enumerate(videos):
+            if self.verbose: print(f'Extracting {i} of {len(videos)}: {video_path.name}')
+
+            # first detect face position via Dlib
+            for frame in frames(video_path):
+                face = DlibExtractor.detect_face(frame)
+                if face is not None: break
+            face = (face.left(), face.top(), face.right(), face.bottom())
+
+            shapes = np.array([
+                self.detector.detect(frame, face)[0]
+                    for frame in frames(video_path)
+            ])
+            dataset.append(shapes)
+        return dataset
