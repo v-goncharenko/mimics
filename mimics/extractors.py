@@ -93,7 +93,7 @@ class DlibExtractor(VideoFaceLandmarksExtractor):
 
     @staticmethod
     def extract_shapes(
-        video_path: Path, predictor_path: Path = default_predictor_path,
+        video_path: Path, predictor_path: Path = default_predictor_path
     ) -> np.ndarray:
         '''Extracts points from given video
 
