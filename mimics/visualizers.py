@@ -8,7 +8,6 @@ from scipy.signal import spectrogram
 from scipy import signal
 import cv2
 
-from .ml_feature_extraction import smooth
 from .utils import frames, open_video
 from .types import Iterable, Optional, File, Shapes
 

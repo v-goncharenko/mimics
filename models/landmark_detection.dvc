@@ -1,0 +1,7 @@
+md5: db451d67295593443776a0f9a41b9dcb
+outs:
+- md5: f322be2746ba3bcd513651d57bc38552.dir
+  path: landmark_detection
+  cache: true
+  metric: false
+  persist: false

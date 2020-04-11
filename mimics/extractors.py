@@ -11,12 +11,8 @@ import SAN
 
 from . import transformers
 from .utils import open_video, frames
-from .types import File
+from .types import File, Optional
 
-
-default_predictor_path = (
-    Path(__file__).with_name('dlib-models') / 'shape_predictor_68_face_landmarks.dat'
-)
 
 # groups of indexes according to 300-W dataset https://ibug.doc.ic.ac.uk/resources/300-W/
 inds_68 = {
@@ -55,16 +51,26 @@ class VideoFaceLandmarksExtractor(transformers.Transformer):
 
 
 class DlibExtractor(VideoFaceLandmarksExtractor):
+    '''Extraction based on dlib trained models
+
+    Pretrained models taken from http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
+    '''
+
+    default_predictor_path = (
+        Path(__file__).resolve()
+        / '../../models/dlib/shape_predictor_68_face_landmarks.dat'
+    )
+
     indexes = inds_68
 
-    def __init__(self, predictor_path: Path = default_predictor_path, n_jobs=-1) -> None:
+    def __init__(self, predictor_path: Optional[Path] = None, n_jobs: int = -1):
         '''
         Args:
             predictor_path: path to file `shape_predictor_68_face_landmarks.dat`
                 which could be downloaded from oficial dlib site
             n_jobs: parameter for joblib
         '''
-        self.predictor_path = predictor_path
+        self.predictor_path = predictor_path or DlibExtractor.default_predictor_path
         self.n_jobs = n_jobs
 
     def _transform(self, videos):
@@ -93,7 +99,7 @@ class DlibExtractor(VideoFaceLandmarksExtractor):
 
     @staticmethod
     def extract_shapes(
-        video_path: Path, predictor_path: Path = default_predictor_path
+        video_path: Path, predictor_path: Optional[Path] = None
     ) -> np.ndarray:
         '''Extracts points from given video
 
@@ -103,6 +109,8 @@ class DlibExtractor(VideoFaceLandmarksExtractor):
         Returns:
             ndarray shaped (#frames, 68, 2) - face landmarks for each frame
         '''
+        predictor_path = predictor_path or DlibExtractor.default_predictor_path
+
         # first detect face position
         for frame in frames(video_path):
             face = DlibExtractor.detect_face(frame)
@@ -158,11 +166,13 @@ class FaExtractor(VideoFaceLandmarksExtractor):
 
 class SanExtractor(VideoFaceLandmarksExtractor):
     '''Source https://github.com/v-goncharenko/landmark-detection
+
+    Pretrained model file https://drive.google.com/file/d/18YV8RxuTny6WrWc1eI2B4g3rM_NxtjEi
     '''
 
     def __init__(
         self,
-        model_path: File = '../data/checkpoint_49.pth.tar',
+        model_path: File = '../models/landmark_detection/checkpoint_49.pth.tar',
         device=None,
         *,
         verbose: bool = False,
