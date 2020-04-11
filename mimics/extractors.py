@@ -131,14 +131,15 @@ class FaExtractor(VideoFaceLandmarksExtractor):
     '''Face-Alignment based extractor https://github.com/1adrianb/face-alignment
     '''
 
-    def __init__(self, device='cpu', *, verbose: bool = False):
-        if str(device) == 'cpu':
+    def __init__(self, device=None, *, verbose: bool = False):
+        self.device = str(device or 'cuda' if torch.cuda.is_available() else 'cpu')
+        if self.device == 'cpu':
             warnings.warn(
                 'Using CPU calculations which will take a loooong time to evaluate'
             )
 
         self.extractor = face_alignment.FaceAlignment(
-            face_alignment.LandmarksType._2D, device=str(device)
+            face_alignment.LandmarksType._2D, device=self.device
         )
         self.verbose = verbose
 

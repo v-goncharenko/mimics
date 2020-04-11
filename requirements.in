@@ -8,4 +8,4 @@ opencv-python
 torch
 torchvision
 face-alignment
--e git+git://github.com/v-goncharenko/landmark-detection@setup#egg=landmark-detection
+-e git+git://github.com/v-goncharenko/landmark-detection@master#egg=landmark-detection
