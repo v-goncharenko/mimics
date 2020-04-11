@@ -5,9 +5,6 @@ from typing import Iterable, Union
 import cv2
 import numpy as np
 
-import matplotlib
-
-matplotlib.use('Agg', force=False)
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
