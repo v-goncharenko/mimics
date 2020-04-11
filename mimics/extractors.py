@@ -57,8 +57,8 @@ class DlibExtractor(VideoFaceLandmarksExtractor):
     '''
 
     default_predictor_path = (
-        Path(__file__).resolve()
-        / '../../models/dlib/shape_predictor_68_face_landmarks.dat'
+        Path(__file__).resolve().parent.parent
+        / 'models/dlib/shape_predictor_68_face_landmarks.dat'
     )
 
     indexes = inds_68
