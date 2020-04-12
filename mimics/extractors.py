@@ -5,6 +5,7 @@ import warnings
 import cv2
 import dlib
 import numpy as np
+import torch
 from joblib import Parallel, delayed
 import face_alignment
 import SAN
