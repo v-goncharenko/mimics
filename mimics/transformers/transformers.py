@@ -165,29 +165,31 @@ class PositiveCorrelator(Transformer):
 
 
 class ButterFilter(Transformer):
-    '''Applies Scipy's Butterworth filter
+    '''Applies Butterworth filter bidirectionally
 
-    This is experimental! First exps failed =(
+    more details https://scipy-cookbook.readthedocs.io/items/FiltFilt.html
     '''
 
     def __init__(
         self,
-        frequency: int,
-        lowpass: int,
-        highpass: int,
+        rate: float,
+        low: float,
+        high: float,
         order: int = 4,
-        type: str = 'bandpass',
+        *,
+        preserve_mean: bool = False,
     ) -> None:
-        self.frequency = frequency
+        self.rate = rate
+        self.low = low
+        self.high = high
         self.order = order
-        self.highpass = highpass
-        self.lowpass = lowpass
-        self.type = type
+        self.preserve_mean = preserve_mean
 
-        normal_cutoff = [
-            a / (0.5 * self.frequency) for a in (self.highpass, self.lowpass)
+        self.design = utils.butter_design(low, high, rate, order, 'bandpass')
+
+    def transform(self, batch):
+        return [
+            signal.filtfilt(*self.design, session, axis=0)
+            + (session.mean(0, keepdims=True) if self.preserve_mean else 0)
+            for session in batch
         ]
-        self.filter = signal.butter(self.order, normal_cutoff, btype=type)
-
-    def transform(self, x):
-        return [signal.filtfilt(*self.filter, session, axis=0) for session in x]

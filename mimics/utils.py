@@ -4,6 +4,7 @@ from typing import Iterable, Union
 
 import cv2
 import numpy as np
+from scipy import signal
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -178,3 +179,16 @@ def angle(vector1, vector2):
     if minor == 0:
         raise NotImplementedError('Too odd vectors =(')
     return np.sign(minor) * np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+
+
+def butter_design(
+    lowcut: float, highcut: float, fs: float, order: int = 4, btype: str = 'bandpass'
+):
+    '''Get Butterworth filter design with params specified
+
+    implementation taken from https://scipy-cookbook.readthedocs.io/items/ButterworthBandpass.html
+    '''
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    return signal.butter(order, [low, high], btype='bandpass')
