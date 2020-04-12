@@ -1,7 +1,6 @@
 from sklearn.pipeline import make_pipeline
 
 from ..types import Optional
-from .. import extractors as ex
 from .basic_transformers import Transformer, Identical, Transposer, Flattener
 from .transformers import (
     Stabilzer,
@@ -14,6 +13,7 @@ from .transformers import (
     PositiveCorrelator,
     ButterFilter,
 )
+from .. import extractors as ex
 
 
 def get_preprocessing(

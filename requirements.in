@@ -3,9 +3,13 @@ pandas
 matplotlib
 scikit-learn
 joblib
-dlib
-opencv-python
 torch
 torchvision
+
+dlib
+opencv-python
+
+mne
+pyriemann
 face-alignment
 -e git+git://github.com/v-goncharenko/landmark-detection@master#egg=landmark-detection
