@@ -38,7 +38,7 @@ class VideoFaceLandmarksExtractor(transformers.Transformer):
         '''Extracts face landmarks from given videos
 
         Args:
-            X: iterable of paths to videos to extract points from
+            videos: iterable of paths to videos to extract points from
 
         Returns:
             list with ndarrays corresponding to each of given videos
