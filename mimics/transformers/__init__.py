@@ -13,6 +13,7 @@ from .transformers import (
     PositiveCorrelator,
     ButterFilter,
 )
+from .dataset_transformers import DatasetTransformer, Resampler
 from .. import extractors as ex
 
 
