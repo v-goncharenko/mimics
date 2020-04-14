@@ -150,7 +150,7 @@ class Visualizer(object):
         '''Plays video through cv2 windows
         Args:
             video: path to video file on disk
-            shapes: result of :py:funct:`.extractors.VideoFaceLandmarksExtractor.transform`
+            shapes: result of :py:funct:`.extractors.VideoLandmarksExtractor.transform`
             title: window title
         '''
         delay = int(1000 / self.fps)

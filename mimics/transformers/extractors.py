@@ -10,9 +10,9 @@ from joblib import Parallel, delayed
 import face_alignment
 import SAN
 
-from . import transformers
-from .utils import open_video, frames
-from .types import File, Optional
+from .basic_transformers import Transformer
+from ..utils import open_video, frames
+from ..types import File, Optional
 
 
 # groups of indexes according to 300-W dataset https://ibug.doc.ic.ac.uk/resources/300-W/
@@ -28,7 +28,7 @@ inds_68 = {
 }
 
 
-class VideoFaceLandmarksExtractor(transformers.Transformer):
+class VideoLandmarksExtractor(Transformer):
     '''Extracts face landmarks from given videos
 
     Provides scarfold implementations and signatures for methods
@@ -51,7 +51,7 @@ class VideoFaceLandmarksExtractor(transformers.Transformer):
         return self._transform(videos)
 
 
-class DlibExtractor(VideoFaceLandmarksExtractor):
+class DlibExtractor(VideoLandmarksExtractor):
     '''Extraction based on dlib trained models
 
     Pretrained models taken from http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
@@ -75,7 +75,7 @@ class DlibExtractor(VideoFaceLandmarksExtractor):
         self.n_jobs = n_jobs
 
     def _transform(self, videos):
-        '''Implements :py:funct:`.VideoFaceLandmarksExtractor.transform`
+        '''Implements :py:funct:`.VideoLandmarksExtractor.transform`
         '''
         delayed_extract = delayed(DlibExtractor.extract_shapes)
         dataset = Parallel(n_jobs=self.n_jobs)(
@@ -128,7 +128,7 @@ class DlibExtractor(VideoFaceLandmarksExtractor):
         return np.stack(extracted)
 
 
-class FaExtractor(VideoFaceLandmarksExtractor):
+class FaExtractor(VideoLandmarksExtractor):
     '''Face-Alignment based extractor https://github.com/1adrianb/face-alignment
     '''
 
@@ -166,7 +166,7 @@ class FaExtractor(VideoFaceLandmarksExtractor):
         return dataset
 
 
-class SanExtractor(VideoFaceLandmarksExtractor):
+class SanExtractor(VideoLandmarksExtractor):
     '''Source https://github.com/v-goncharenko/landmark-detection
 
     Pretrained model file https://drive.google.com/file/d/18YV8RxuTny6WrWc1eI2B4g3rM_NxtjEi

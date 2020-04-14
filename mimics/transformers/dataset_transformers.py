@@ -3,18 +3,33 @@ from functools import partial
 import numpy as np
 
 from .basic_transformers import Transformer
+from .. import datasets
 
 
 class DatasetTransformer(Transformer):
     '''Special transformer that takes whole dataset as an input
         This tranformers mutate given dataset
+
+    Using this type is required when transform of each dataset item
+        (face landmarks sequences) depends on other information in dataset.
+    By default descendants is assumed regular transformers impolementing `_transform`
+        method and not require whole dataset, just data.
+    In case of transformer truly dependant on the whole dataset one have to redefine
+        `transform` method itself
     '''
 
-    def transform(self, dataset):
+    def transform(self, data):
         '''
         Args:
             dataset: one object of dataset class
         '''
+        if isinstance(data, datasets.FaceLandmarksDataset):
+            data._data = self._transform(data._data)
+        else:
+            data = self._transform(data)
+        return data
+
+    def _transform(self, batch):
         raise NotImplementedError()
 
 
@@ -62,7 +77,8 @@ class Resampler(DatasetTransformer):
         self.target_rate = target_rate
 
     def transform(self, dataset):
-        return [
+        dataset._data = [
             self.resample_interp_mult(record, fps, self.target_rate, 0)
             for record, fps in zip(dataset, dataset.markup['fps'])
         ]
+        return dataset

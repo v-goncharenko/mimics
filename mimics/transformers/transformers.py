@@ -5,32 +5,32 @@ from sklearn.decomposition import PCA
 from scipy import signal
 
 from .. import utils
-from .basic_transformers import Transformer
+from .dataset_transformers import DatasetTransformer
 
 
-class Stabilzer(Transformer):
+class Stabilzer(DatasetTransformer):
     '''Subtracts mean of points with given indexes from each frame's points
         thus it stabilizer each frame wrt given points
     '''
 
-    def __init__(self, indexes: tuple = tuple(range(27, 36))):
+    def __init__(self, indexes: tuple):
         self.indexes = indexes
 
-    def transform(self, x):
+    def _transform(self, batch):
         '''
         Args:
-            x: list of sessions
+            batch: list of sessions
         '''
         result = []
         self.centers = []
-        for session in x:
+        for session in batch:
             means = session[:, self.indexes, :].mean(axis=1, keepdims=True)
             result.append(session - means)
             self.centers.append(means)
         return result
 
 
-class EyesRotator(Transformer):
+class EyesRotator(DatasetTransformer):
     '''Rotates points to lay fixed points (brows) on horizontal line
     '''
 
@@ -38,10 +38,10 @@ class EyesRotator(Transformer):
         self.left_indexes = left_indexes
         self.right_indexes = right_indexes
 
-    def transform(self, x):
+    def _transform(self, batch):
         result = []
         self.angles = []
-        for session in x:
+        for session in batch:
             means = session.mean(0)
             left = means[self.left_indexes, :].mean(0)
             right = means[self.right_indexes, :].mean(0)
@@ -52,7 +52,7 @@ class EyesRotator(Transformer):
         return result
 
 
-class Scaler(Transformer):
+class Scaler(DatasetTransformer):
     '''Scales mean of given points over axis to have given distance
     '''
 
@@ -62,7 +62,7 @@ class Scaler(Transformer):
         self.inds2 = inds2
         self.distance = distance
 
-    def transform(self, batch: list):
+    def _transform(self, batch: list):
         result = []
         self.scales = []
         for item in batch:
@@ -77,14 +77,14 @@ class Scaler(Transformer):
         return result
 
 
-class Centerer(Transformer):
+class Centerer(DatasetTransformer):
     '''Centers points such that means of given points are in (0, 0) point
     '''
 
     def __init__(self, inds: tuple):
         self.inds = inds
 
-    def transform(self, batch: list):
+    def _transform(self, batch: list):
         result = []
         for item in batch:
             means = item.mean(0)
@@ -93,17 +93,17 @@ class Centerer(Transformer):
         return result
 
 
-class ChannelsSelector(Transformer):
+class ChannelsSelector(DatasetTransformer):
     '''Filters face landmarks according to provided channels list'''
 
-    def __init__(self, channels: tuple = tuple(range(17, 27))):
+    def __init__(self, channels: tuple):
         self.channels = channels
 
-    def transform(self, x: List[np.ndarray]) -> List[np.ndarray]:
-        return [session[:, self.channels, :] for session in x]
+    def _transform(self, batch: List[np.ndarray]) -> List[np.ndarray]:
+        return [session[:, self.channels, :] for session in batch]
 
 
-class Smoother(Transformer):
+class Smoother(DatasetTransformer):
     '''Smooths given batch of signals with given window via convolution
     '''
 
@@ -118,7 +118,7 @@ class Smoother(Transformer):
         self.window_length = window_length
         self.window_type = window_type
 
-    def transform(self, batch):
+    def _transform(self, batch):
         window = getattr(np, self.window_type)(self.window_length) / self.window_length
         window /= window.sum()  # normalization to have same units as input
         return [
@@ -127,14 +127,14 @@ class Smoother(Transformer):
         ]
 
 
-class PcaReducer(Transformer):
+class PcaReducer(DatasetTransformer):
     '''Reduced less variational dimention of the points
     '''
 
     def __init__(self, n_components=1):
         self.n_components = n_components
 
-    def transform(self, batch):
+    def _transform(self, batch):
         pca = PCA(self.n_components)
         return [
             np.squeeze(
@@ -150,13 +150,13 @@ class PcaReducer(Transformer):
         ]
 
 
-class PositiveCorrelator(Transformer):
+class PositiveCorrelator(DatasetTransformer):
     '''Makes all the channels in input positive correlated with zero channel
 
     Input have to be shaped (#channels, #samples)
     '''
 
-    def transform(self, batch):
+    def _transform(self, batch):
         result = []
         for item in batch:
             corrs = np.sign([np.corrcoef(item[0], channel)[0, 1] for channel in item])
@@ -164,7 +164,7 @@ class PositiveCorrelator(Transformer):
         return result
 
 
-class ButterFilter(Transformer):
+class ButterFilter(DatasetTransformer):
     '''Applies Butterworth filter bidirectionally
 
     more details https://scipy-cookbook.readthedocs.io/items/FiltFilt.html
@@ -187,7 +187,7 @@ class ButterFilter(Transformer):
 
         self.design = utils.butter_design(low, high, rate, order, 'bandpass')
 
-    def transform(self, batch):
+    def _transform(self, batch):
         return [
             signal.filtfilt(*self.design, session, axis=0)
             + (session.mean(0, keepdims=True) if self.preserve_mean else 0)

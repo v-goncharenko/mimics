@@ -5,8 +5,7 @@ import numpy as np
 import pandas as pd
 from torch.utils import data as torch_data
 
-from .extractors import VideoFaceLandmarksExtractor
-from .transformers import Transformer
+from .transformers import DatasetTransformer, extractors as extrs
 from .types import Directory, Optional, File
 from .visualizers import points_on_video
 
@@ -24,8 +23,8 @@ class FaceLandmarksDataset(torch_data.Dataset):
     def __init__(
         self,
         path: Directory,
-        extractor: VideoFaceLandmarksExtractor,
-        transformer: Transformer = None,
+        extractor: extrs.VideoLandmarksExtractor,
+        transformer: Optional[DatasetTransformer] = None,
     ):
         self.path = path
         self.extractor = extractor
@@ -47,8 +46,8 @@ class FaceLandmarksDataset(torch_data.Dataset):
             with open(precomp_path, 'wb') as file:
                 pickle.dump(self._data, file)
 
-        if transformer:
-            self._data = self.transformer.fit_transform(self._data)
+        if self.transformer:
+            self.transformer.fit_transform(self)
 
     def __len__(self):
         return len(self._data)

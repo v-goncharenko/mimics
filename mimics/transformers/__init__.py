@@ -2,6 +2,7 @@ from sklearn.pipeline import make_pipeline
 
 from ..types import Optional
 from .basic_transformers import Transformer, Identical, Transposer, Flattener
+from .dataset_transformers import DatasetTransformer, Resampler
 from .transformers import (
     Stabilzer,
     EyesRotator,
@@ -13,8 +14,7 @@ from .transformers import (
     PositiveCorrelator,
     ButterFilter,
 )
-from .dataset_transformers import DatasetTransformer, Resampler
-from .. import extractors as ex
+from . import extractors as ex
 
 
 def get_preprocessing(
