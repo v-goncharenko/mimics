@@ -18,7 +18,13 @@ from . import extractors as ex
 
 
 def get_preprocessing(
-    points: str = 'brows', *, steps: Optional[int] = None,
+    points: str = 'brows',
+    resample_to: float = 15.0,
+    low: float = 0.1,
+    high: float = 5.0,
+    *,
+    steps: Optional[int] = None,
+    preserve_mean: bool = False
 ):
     '''Makes preprocessing pipeline for face shapes
 
@@ -35,7 +41,8 @@ def get_preprocessing(
         EyesRotator(ex.inds_68['left_eye'], ex.inds_68['right_eye']),
         Scaler(ex.inds_68['left_eye'], ex.inds_68['right_eye'], axis=0),
         Scaler(ex.inds_68['eyes'], ex.inds_68['lips'], axis=1),
-        ButterFilter(30.0, 0.1, 3.0, 4, preserve_mean=True),
+        Resampler(resample_to),
+        ButterFilter(resample_to, low, high, 4, preserve_mean=preserve_mean),
         Centerer(ex.inds_68[points]),
         ChannelsSelector(ex.inds_68[points]),
     )

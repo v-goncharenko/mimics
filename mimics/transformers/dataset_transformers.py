@@ -40,6 +40,8 @@ class Resampler(DatasetTransformer):
     Alternatives are scipy.signal's resample and resample_poly.
     Former gives high freq artifacts on start and sharp edges.
     Latter requires searching for best fraction to estimate target_rate which is hard.
+    The only shortcoming of interpolation is poor handling of high freqs (above target),
+        this colud be solved by lowpass filter before resampling (noe it is not done yet).
 
     Finally tests showed that linear interpolation works fine on our data
         in range from 6 to 30 Hz to 15 Hz
