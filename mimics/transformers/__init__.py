@@ -42,7 +42,7 @@ def get_preprocessing(
         Scaler(ex.inds_68['left_eye'], ex.inds_68['right_eye'], axis=0),
         Scaler(ex.inds_68['eyes'], ex.inds_68['lips'], axis=1),
         Resampler(resample_to),
-        ButterFilter(resample_to, low, high, 4, preserve_mean=preserve_mean),
+        ButterFilter(resample_to, (low, high), 4, preserve_mean=preserve_mean),
         Centerer(ex.inds_68[points]),
         ChannelsSelector(ex.inds_68[points]),
     )

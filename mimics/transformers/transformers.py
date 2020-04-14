@@ -1,9 +1,8 @@
-from typing import List
-
 import numpy as np
 from sklearn.decomposition import PCA
 from scipy import signal
 
+from ..types import List, Tuple
 from .. import utils
 from .dataset_transformers import DatasetTransformer
 
@@ -173,19 +172,19 @@ class ButterFilter(DatasetTransformer):
     def __init__(
         self,
         rate: float,
-        low: float,
-        high: float,
+        cutoffs: Tuple[float],
         order: int = 4,
+        btype: str = 'bandpass',
         *,
         preserve_mean: bool = False,
-    ) -> None:
+    ):
         self.rate = rate
-        self.low = low
-        self.high = high
+        self.cutoffs = cutoffs
         self.order = order
+        self.btype = btype
         self.preserve_mean = preserve_mean
 
-        self.design = utils.butter_design(low, high, rate, order, 'bandpass')
+        self.design = utils.butter_design(rate, cutoffs, order, btype)
 
     def _transform(self, batch):
         return [

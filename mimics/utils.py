@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterable, Union
+from typing import Iterable, Union, Tuple
 
 import cv2
 import numpy as np
@@ -182,13 +182,12 @@ def angle(vector1, vector2):
 
 
 def butter_design(
-    lowcut: float, highcut: float, fs: float, order: int = 4, btype: str = 'bandpass'
+    fs: float, cutoffs: Tuple[float], order: int = 4, btype: str = 'bandpass'
 ):
     '''Get Butterworth filter design with params specified
 
     implementation taken from https://scipy-cookbook.readthedocs.io/items/ButterworthBandpass.html
     '''
     nyq = 0.5 * fs
-    low = lowcut / nyq
-    high = highcut / nyq
-    return signal.butter(order, [low, high], btype='bandpass')
+    normal = tuple(cut / nyq for cut in cutoffs)
+    return signal.butter(order, normal, btype=btype)
