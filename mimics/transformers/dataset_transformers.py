@@ -1,9 +1,13 @@
 from functools import partial
 
 import numpy as np
+from scipy import signal
 
-from .basic_transformers import Transformer
+
+from .basic import Transformer
 from .. import datasets
+from ..types import Tuple
+from .. import utils
 
 
 class DatasetTransformer(Transformer):
@@ -48,12 +52,15 @@ class Resampler(DatasetTransformer):
     '''
 
     @staticmethod
-    def resample_interp(signal, input_fs, output_fs):
-        '''copied from https://github.com/nwhitehead/swmixer/blob/master/swmixer.py
+    def resample_interp(
+        signal: np.ndarray, in_rate: float, out_rate: float, endpoint: bool = False
+    ):
+        '''Resamples by interpolation
+
+        copied from https://github.com/nwhitehead/swmixer/blob/master/swmixer.py
         '''
-        scale = output_fs / input_fs
-        # calculate new length of sample
-        n = round(len(signal) * scale)
+        scale = out_rate / in_rate
+        new_len = round(len(signal) * scale)
 
         # use linear interpolation
         # endpoint keyword means than linspace doesn't go all the way to 1.0
@@ -63,24 +70,55 @@ class Resampler(DatasetTransformer):
         # Both are OK, but since resampling will often involve
         # exact ratios (i.e. for 44100 to 22050 or vice versa)
         # using endpoint=False gets less noise in the resampled sound
-        resampled_signal = np.interp(
-            np.linspace(0.0, 1.0, n, endpoint=False),  # where to interpret
-            np.linspace(0.0, 1.0, len(signal), endpoint=False),  # known positions
+        return np.interp(
+            np.linspace(0.0, 1.0, new_len, endpoint=endpoint),  # where to interpret
+            np.linspace(0.0, 1.0, len(signal), endpoint=endpoint),  # known positions
             signal,  # known data points
         )
-        return resampled_signal
 
     @staticmethod
-    def resample_interp_mult(signal, in_rate, out_rate, axis):
-        funct1d = partial(Resampler.resample_interp, input_fs=in_rate, output_fs=out_rate)
+    def resample_interp_mult(
+        signal, in_rate: float, out_rate: float, axis: int, endpoint: bool = False
+    ):
+        funct1d = partial(Resampler.resample_interp, in_rate=in_rate, out_rate=out_rate)
         return np.apply_along_axis(funct1d, axis, signal)
 
-    def __init__(self, target_rate: float):
+    def __init__(self, target_rate: float, endpoint: bool = False):
         self.target_rate = target_rate
+        self.endpoint = endpoint
 
     def transform(self, dataset):
         dataset._data = [
-            self.resample_interp_mult(record, fps, self.target_rate, 0)
+            self.resample_interp_mult(record, fps, self.target_rate, 0, self.endpoint)
             for record, fps in zip(dataset, dataset.markup['fps'])
         ]
+        return dataset
+
+
+class ConditionalFilter(DatasetTransformer):
+    '''Applies digital bandpass filter to signals in a dataset
+        according to each signal's rate
+    '''
+
+    def __init__(
+        self, cutoffs: Tuple[float], order: int, *, preserve_mean: bool = False,
+    ):
+        self.cutoffs = cutoffs
+        self.order = order
+        self.preserve_mean = preserve_mean
+
+    def transform(self, dataset):
+        for i, fps in enumerate(dataset.markup['fps']):
+            if all(cut < 2 * fps for cut in self.cutoffs):
+                btype = 'bandpass'
+                cutoffs = self.cutoffs
+            else:
+                btype = 'highpass'
+                cutoffs = min(self.cutoffs)
+            design = utils.butter_design(fps, cutoffs, self.order, btype)
+
+            data = dataset._data[i]
+            dataset._data[i] = signal.filtfilt(*design, data, axis=0)
+            if self.preserve_mean:
+                dataset._data[i] += data.mean(0, keepdims=True)
         return dataset

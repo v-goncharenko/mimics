@@ -10,7 +10,7 @@ from joblib import Parallel, delayed
 import face_alignment
 import SAN
 
-from .basic_transformers import Transformer
+from .basic import Transformer
 from ..utils import open_video, frames
 from ..types import File, Optional
 

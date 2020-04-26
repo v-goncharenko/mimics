@@ -3,16 +3,16 @@ import json
 
 import numpy as np
 import pandas as pd
-from torch.utils import data as torch_data
+from torch.utils.data import Dataset
 
 from .transformers import DatasetTransformer, extractors as extrs
 from .types import Directory, Optional, File
 from .visualizers import points_on_video
 
 
-class FaceLandmarksDataset(torch_data.Dataset):
-    '''Provides markup data for objects which are timeseries of points
-        represented by videos on disk
+class FaceLandmarksDataset(Dataset):
+    '''Dataset contains timeseries of face landmarks from videos
+        Also contains markup DataFrame with metainformation about records
 
     Markup have to have 'filename' column with name of videofile
     '''

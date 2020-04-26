@@ -7,7 +7,7 @@
 `setup.py` is planned, for now manual installation
 
 For usage:
-1. install miniconda (or `virtualenv` but not tested)
+1. install miniconda (or `virtualenv` although not tested)
 2. create `mimics` env (see `.python-version` for version)
 3. install building tools: `sudo apt update && sudo apt install -y build-essential`
 4. `cmake`: `sudo snap install cmake --classic` works for ubuntu
