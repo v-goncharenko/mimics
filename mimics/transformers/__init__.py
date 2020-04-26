@@ -20,19 +20,22 @@ from .transformers import (
 def get_preprocessing(
     points: str = 'brows',
     low: float = 0.2,
-    high: float = 5.0,
-    resample_to: float = 5.0,
+    high: float = 3.0,
+    resample_to: Optional[float] = None,
     *,
     steps: Optional[int] = None,
     preserve_mean: bool = False
 ):
-    '''Makes preprocessing pipeline for face shapes
+    '''Makes preprocessing pipeline of face shapes for classification
 
     Args:
         points: which points to center on and restrict output to
+        resample_to: resulting rate of recording.
+            By default equals to double high filtering rate according to Kotelnikov theorem
         steps: number of setps of final transform to make from 0 to max preprocessors
             (useful for debugging and visualising)
     '''
+    resample_to = resample_to or 2 * high
     if steps == 0:
         return make_pipeline(Identical())
 
