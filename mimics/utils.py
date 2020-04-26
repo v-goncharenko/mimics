@@ -110,10 +110,10 @@ def convert_bbox(bbox: tuple, fr: str, to: str) -> tuple:
     '''
     if fr == 'xywh' and to == 'tlbr':
         x, y, w, h = bbox
-        return [x, y, x + w, y + h]
+        return (x, y, x + w, y + h)
     elif fr == 'tlbr' and to == 'xywh':
         l, t, r, b = bbox
-        return [l, t, r - l, b - t]
+        return (l, t, r - l, b - t)
     elif fr == 'dlib' and to == 'tlbr':
         return (bbox.left(), bbox.top(), bbox.right(), bbox.bottom())
 
