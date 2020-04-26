@@ -1,15 +1,13 @@
 from pathlib import Path
 
-from IPython.display import HTML
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import numpy as np
-from scipy.signal import spectrogram
-from scipy import signal
 import cv2
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import numpy as np
+from IPython.display import HTML
 
+from .types import File, Iterable, Optional, Shapes
 from .utils import frames, open_video
-from .types import Iterable, Optional, File, Shapes
 
 
 def plot_joint(dataset, title='', *, orient_up: bool = True, figsize=(5, 5)):

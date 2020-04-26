@@ -1,12 +1,11 @@
 import pickle
-import json
 
-import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset
 
-from .transformers import DatasetTransformer, extractors as extrs
-from .types import Directory, Optional, File
+from .transformers import DatasetTransformer
+from .transformers import extractors as extrs
+from .types import Directory, File, Optional
 from .visualizers import points_on_video
 
 

@@ -1,18 +1,17 @@
+import warnings
 from pathlib import Path
 from typing import Iterable, List
-import warnings
 
-import cv2
 import dlib
+import face_alignment
 import numpy as np
+import SAN
 import torch
 from joblib import Parallel, delayed
-import face_alignment
-import SAN
 
-from .basic import Transformer
-from ..utils import open_video, frames
 from ..types import File, Optional
+from ..utils import frames
+from .basic import Transformer
 
 
 # groups of indexes according to 300-W dataset https://ibug.doc.ic.ac.uk/resources/300-W/

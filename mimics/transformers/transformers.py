@@ -1,9 +1,9 @@
 import numpy as np
-from sklearn.decomposition import PCA
 from scipy import signal
+from sklearn.decomposition import PCA
 
-from ..types import List, Tuple
 from .. import utils
+from ..types import List, Tuple
 from .dataset_transformers import DatasetTransformer
 
 

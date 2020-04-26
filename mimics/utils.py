@@ -1,13 +1,12 @@
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterable, Union, Tuple
+from typing import Iterable, Tuple, Union
 
 import cv2
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy import signal
-
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 
 
 @contextmanager
@@ -126,7 +125,7 @@ def plot_image(
     title: str = '',
     *,
     figsize: tuple = (20, 5),
-    boxes: list = [],
+    boxes: tuple = (),
     opencv=True,
     extra_operations=lambda: None,
 ):

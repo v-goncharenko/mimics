@@ -3,11 +3,9 @@ from functools import partial
 import numpy as np
 from scipy import signal
 
-
-from .basic import Transformer
-from .. import datasets
+from .. import datasets, utils
 from ..types import Tuple
-from .. import utils
+from .basic import Transformer
 
 
 class DatasetTransformer(Transformer):

@@ -1,20 +1,20 @@
 from sklearn.pipeline import make_pipeline
 
 from ..types import Optional
-from .basic import Transformer, Identical, Transposer, Flattener
+from . import extractors as ex
+from .basic import Flattener, Identical, Transformer, Transposer
 from .dataset_transformers import DatasetTransformer, Resampler
 from .transformers import (
-    Stabilzer,
-    EyesRotator,
-    Scaler,
+    ButterFilter,
     Centerer,
     ChannelsSelector,
-    Smoother,
+    EyesRotator,
     PcaReducer,
     PositiveCorrelator,
-    ButterFilter,
+    Scaler,
+    Smoother,
+    Stabilzer,
 )
-from . import extractors as ex
 
 
 def get_preprocessing(
@@ -47,3 +47,23 @@ def get_preprocessing(
         ChannelsSelector(ex.inds_68[points]),
     )
     return make_pipeline(*transformers[:steps])
+
+
+__all__ = (
+    'DatasetTransformer',
+    'Resampler',
+    'Flattener',
+    'Identical',
+    'Transformer',
+    'Transposer',
+    'ButterFilter',
+    'Centerer',
+    'ChannelsSelector',
+    'EyesRotator',
+    'PcaReducer',
+    'PositiveCorrelator',
+    'Scaler',
+    'Smoother',
+    'Stabilzer',
+    'get_preprocessing',
+)
