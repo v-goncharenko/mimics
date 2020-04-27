@@ -27,6 +27,8 @@ inds_68 = {
     'eyes': tuple(range(36, 48)),
 }
 
+_models_dir = Path(__file__).resolve().parent.parent.parent / 'models'
+
 
 class VideoLandmarksExtractor(Transformer):
     '''Extracts face landmarks from given videos
@@ -57,10 +59,7 @@ class DlibExtractor(VideoLandmarksExtractor):
     Pretrained models taken from http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
     '''
 
-    default_predictor_path = (
-        Path(__file__).resolve().parent.parent.parent
-        / 'models/dlib/shape_predictor_68_face_landmarks.dat'
-    )
+    default_predictor_path = _models_dir / 'dlib/shape_predictor_68_face_landmarks.dat'
 
     indexes = inds_68
 
@@ -174,7 +173,7 @@ class SanExtractor(VideoLandmarksExtractor):
 
     def __init__(
         self,
-        model_path: File = '../../models/landmark_detection/checkpoint_49.pth.tar',
+        model_path: File = _models_dir / 'landmark_detection/checkpoint_49.pth.tar',
         device=None,
         *,
         verbose: bool = False,
