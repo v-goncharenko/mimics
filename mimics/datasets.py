@@ -24,7 +24,15 @@ class FaceLandmarksDataset(Dataset):
         path: Directory,
         extractor: extrs.VideoLandmarksExtractor,
         transformer: Optional[DatasetTransformer] = None,
+        *,
+        compute_fps: bool = False,
     ):
+        '''
+        Args:
+            compute_fps: if True drops fps from markup and computes fps as
+                actual frames number divided by record duration (from markup).
+                Else uses values from markup as is
+        '''
         self.path = path
         self.extractor = extractor
         self.transformer = transformer
@@ -36,23 +44,26 @@ class FaceLandmarksDataset(Dataset):
         )
         if precomp_path.exists():
             with open(precomp_path, 'rb') as file:
-                self._data = pickle.load(file)
+                self.data = pickle.load(file)
         else:
-            self._data = self.extractor.fit_transform(
+            self.data = self.extractor.fit_transform(
                 [self.path / filename for filename in self.markup['filename']]
             )
             precomp_path.parent.mkdir(exist_ok=True)
             with open(precomp_path, 'wb') as file:
-                pickle.dump(self._data, file)
+                pickle.dump(self.data, file)
+
+        # if compute_fps:
+        #     frames =
 
         if self.transformer:
             self.transformer.fit_transform(self)
 
     def __len__(self):
-        return len(self._data)
+        return len(self.data)
 
     def __getitem__(self, index):
-        return self._data[index]
+        return self.data[index]
 
     def __repr__(self):
         return (
