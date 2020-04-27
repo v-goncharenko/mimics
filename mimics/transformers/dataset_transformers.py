@@ -2,8 +2,9 @@ from functools import partial
 
 import numpy as np
 from scipy import interpolate, signal
+from torch.utils.data import Dataset
 
-from .. import datasets, utils
+from .. import utils
 from ..types import Tuple
 from .basic import Transformer
 
@@ -25,8 +26,8 @@ class DatasetTransformer(Transformer):
         Args:
             dataset: one object of dataset class
         '''
-        if isinstance(data, datasets.FaceLandmarksDataset):
-            data._data = self._transform(data._data)
+        if isinstance(data, Dataset):
+            data.data = self._transform(data.data)
         else:
             data = self._transform(data)
         return data
@@ -96,7 +97,7 @@ class Resampler(DatasetTransformer):
         else:
             funct = self.resample_interp_mult
 
-        dataset._data = [
+        dataset.data = [
             funct(record, fps, self.target_rate, 0)
             for record, fps in zip(dataset, dataset.markup['fps'])
         ]
@@ -125,8 +126,8 @@ class ConditionalFilter(DatasetTransformer):
                 cutoffs = (min(self.cutoffs),)
             design = utils.butter_design(fps, cutoffs, self.order, btype)
 
-            data = dataset._data[i]
-            dataset._data[i] = signal.filtfilt(*design, data, axis=0)
+            data = dataset.data[i]
+            dataset.data[i] = signal.filtfilt(*design, data, axis=0)
             if self.preserve_mean:
-                dataset._data[i] += data.mean(0, keepdims=True)
+                dataset.data[i] += data.mean(0, keepdims=True)
         return dataset
