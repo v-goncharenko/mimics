@@ -133,7 +133,7 @@ class FaExtractor(VideoLandmarksExtractor):
     '''
 
     def __init__(self, device=None, *, verbose: bool = False):
-        self.device = str(device or 'cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = str(device or ('cuda' if torch.cuda.is_available() else 'cpu'))
         if self.device == 'cpu':
             warnings.warn(
                 'Using CPU calculations which will take a loooong time to evaluate'
@@ -174,7 +174,7 @@ class SanExtractor(VideoLandmarksExtractor):
 
     def __init__(
         self,
-        model_path: File = '../models/landmark_detection/checkpoint_49.pth.tar',
+        model_path: File = '../../models/landmark_detection/checkpoint_49.pth.tar',
         device=None,
         *,
         verbose: bool = False,
