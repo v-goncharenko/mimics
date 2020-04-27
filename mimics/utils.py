@@ -1,12 +1,14 @@
+import shutil
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterable, Tuple, Union
 
 import cv2
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import signal
+
+from .types import Directory, File, Iterable, Tuple, Union
 
 
 @contextmanager
@@ -190,3 +192,12 @@ def butter_design(
     nyq = 0.5 * fs
     normal = tuple(cut / nyq for cut in cutoffs)
     return signal.butter(order, normal, btype=btype)
+
+
+def copy(source: File, dest: Union[File, Directory]):
+    '''Copies file to to destination for both strings and pathlib objects
+        Unfortunately Python doesn't have a native copying function for pathlib =(((
+    '''
+    source, dest = Path(source), Path(dest)
+    copied = shutil.copy2(source.as_posix(), dest.as_posix())
+    return Path(copied)
