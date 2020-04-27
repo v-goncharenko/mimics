@@ -1,5 +1,6 @@
 import pickle
 
+import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset
 
@@ -25,7 +26,7 @@ class FaceLandmarksDataset(Dataset):
         extractor: extrs.VideoLandmarksExtractor,
         transformer: Optional[DatasetTransformer] = None,
         *,
-        compute_fps: bool = False,
+        compute_fps: bool = True,
     ):
         '''
         Args:
@@ -53,8 +54,9 @@ class FaceLandmarksDataset(Dataset):
             with open(precomp_path, 'wb') as file:
                 pickle.dump(self.data, file)
 
-        # if compute_fps:
-        #     frames =
+        if compute_fps:
+            frames = np.array([len(rec) for rec in self.data])
+            self.markup['fps'] = frames / self.markup['duration']
 
         if self.transformer:
             self.transformer.fit_transform(self)

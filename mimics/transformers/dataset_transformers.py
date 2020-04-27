@@ -131,3 +131,9 @@ class ConditionalFilter(DatasetTransformer):
             if self.preserve_mean:
                 dataset.data[i] += data.mean(0, keepdims=True)
         return dataset
+
+
+class Stacker(DatasetTransformer):
+    def transform(self, dataset):
+        dataset.data = np.stack(dataset.data)
+        return dataset

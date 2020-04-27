@@ -3,7 +3,12 @@ from sklearn.pipeline import make_pipeline
 from ..types import Optional
 from . import extractors as ex
 from .basic import Flattener, Identical, Transformer, Transposer
-from .dataset_transformers import ConditionalFilter, DatasetTransformer, Resampler
+from .dataset_transformers import (
+    ConditionalFilter,
+    DatasetTransformer,
+    Resampler,
+    Stacker,
+)
 from .transformers import (
     ButterFilter,
     Centerer,
@@ -46,6 +51,7 @@ def get_preprocessing(
         Scaler(ex.inds_68['eyes'], ex.inds_68['lips'], axis=1),
         ConditionalFilter((low, high), 4, preserve_mean=preserve_mean),
         Resampler(resample_to),
+        Stacker(),
         Centerer(ex.inds_68[points]),
         ChannelsSelector(ex.inds_68[points]),
     )
@@ -55,6 +61,7 @@ def get_preprocessing(
 __all__ = (
     'DatasetTransformer',
     'Resampler',
+    'Stacker',
     'ConditionalFilter',
     'Flattener',
     'Identical',

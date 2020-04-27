@@ -84,12 +84,10 @@ class Centerer(DatasetTransformer):
         self.inds = inds
 
     def _transform(self, batch: list):
-        result = []
-        for item in batch:
-            means = item.mean(0)
-            center = means[self.inds, :].mean(0)
-            result.append(item - center)
-        return result
+        for i in range(len(batch)):
+            mean = batch[i][:, self.inds, :].mean(axis=(0, 1), keepdims=True)
+            batch[i] = batch[i] - mean
+        return batch
 
 
 class ChannelsSelector(DatasetTransformer):
@@ -99,6 +97,8 @@ class ChannelsSelector(DatasetTransformer):
         self.channels = channels
 
     def _transform(self, batch: List[np.ndarray]) -> List[np.ndarray]:
+        if isinstance(batch, np.ndarray):
+            return batch[:, :, self.channels, :]
         return [session[:, self.channels, :] for session in batch]
 
 
