@@ -5,9 +5,10 @@ from typing import Iterable, List
 import dlib
 import face_alignment
 import numpy as np
-import SAN
 import torch
 from joblib import Parallel, delayed
+
+import SAN
 
 from ..types import File, Optional
 from ..utils import frames
@@ -57,7 +58,7 @@ class DlibExtractor(VideoLandmarksExtractor):
     '''
 
     default_predictor_path = (
-        Path(__file__).resolve().parent.parent
+        Path(__file__).resolve().parent.parent.parent
         / 'models/dlib/shape_predictor_68_face_landmarks.dat'
     )
 
