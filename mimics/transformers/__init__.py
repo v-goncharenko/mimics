@@ -1,6 +1,7 @@
+import numpy as np
 from sklearn.pipeline import make_pipeline
 
-from ..types import Optional
+from ..types import Optional, Union
 from . import extractors as ex
 from .basic import Flattener, Identical, Transformer, Transposer
 from .dataset_transformers import (
@@ -23,7 +24,7 @@ from .transformers import (
 
 
 def get_preprocessing(
-    points: str = 'brows',
+    points: Union[str, tuple] = 'brows',
     low: float = 0.2,
     high: float = 3.0,
     resample_to: Optional[float] = None,
@@ -40,7 +41,10 @@ def get_preprocessing(
         steps: number of setps of final transform to make from 0 to max preprocessors
             (useful for debugging and visualising)
     '''
+    if isinstance(points, str):
+        points = (points,)
     resample_to = resample_to or 2 * high
+
     if steps == 0:
         return make_pipeline(Identical())
 
@@ -52,8 +56,8 @@ def get_preprocessing(
         ConditionalFilter((low, high), 4, preserve_mean=preserve_mean),
         Resampler(resample_to),
         Stacker(),
-        Centerer(ex.inds_68[points]),
-        ChannelsSelector(ex.inds_68[points]),
+        # Centerer(ex.inds_68[points]),
+        ChannelsSelector(np.concatenate([ex.inds_68[po] for po in points])),
     )
     return make_pipeline(*transformers[:steps])
 

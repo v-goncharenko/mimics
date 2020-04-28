@@ -30,6 +30,7 @@ class FaceLandmarksDataset(Dataset):
     ):
         '''
         Args:
+            path: dataset directory
             compute_fps: if True drops fps from markup and computes fps as
                 actual frames number divided by record duration (from markup).
                 Else uses values from markup as is
@@ -76,7 +77,11 @@ class FaceLandmarksDataset(Dataset):
 
     @property
     def labels(self):
-        return self.markup['hypomimia'].values
+        return self.markup['hypomimia'].values.copy()
+
+    @property
+    def name(self):
+        return self.path.name
 
     def filename(self, index: int):
         return self.path / self.markup.loc[index, 'filename']
