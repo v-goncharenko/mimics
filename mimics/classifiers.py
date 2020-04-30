@@ -113,3 +113,9 @@ clfs = {  # {model_name: (model, params_dict)}
 for name, (clf, _) in clfs.items():
     clf.name = name
 # fmt: off
+
+
+__all__ = (
+    'scores',
+    'clfs',
+)
