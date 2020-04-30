@@ -16,6 +16,7 @@ from .transformers import (
     ChannelsSelector,
     EyesRotator,
     PcaReducer,
+    PointsToChannels,
     PositiveCorrelator,
     Scaler,
     Smoother,
@@ -56,7 +57,6 @@ def get_preprocessing(
         ConditionalFilter((low, high), 4, preserve_mean=preserve_mean),
         Resampler(resample_to),
         Stacker(),
-        # Centerer(ex.inds_68[points]),
         ChannelsSelector(np.concatenate([ex.inds_68[po] for po in points])),
     )
     return make_pipeline(*transformers[:steps])
@@ -80,5 +80,6 @@ __all__ = (
     'Scaler',
     'Smoother',
     'Stabilzer',
+    'PointsToChannels',
     'get_preprocessing',
 )

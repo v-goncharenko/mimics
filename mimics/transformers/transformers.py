@@ -192,3 +192,18 @@ class ButterFilter(DatasetTransformer):
             + (session.mean(0, keepdims=True) if self.preserve_mean else 0)
             for session in batch
         ]
+
+
+class PointsToChannels(DatasetTransformer):
+    '''Changes shape and axis order of points dataset to match CSP format
+    Note: dataset have to be shrinked (dataset.data be ndarray) before this transformer
+
+    Example:
+        PointsToChannels().transform(dataset.data)
+    '''
+
+    def _transform(self, batch):
+        n_objects, n_samples = batch.shape[:2]
+        batch_joined = batch.reshape((n_objects, n_samples, -1))
+        batch_channel = np.moveaxis(batch_joined, 1, -1)
+        return batch_channel
