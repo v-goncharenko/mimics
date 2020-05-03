@@ -5,13 +5,12 @@ from typing import Iterable, List
 import dlib
 import face_alignment
 import numpy as np
-import torch
 from joblib import Parallel, delayed
 
 import SAN
 
 from ..types import File, Optional
-from ..utils import frames
+from ..utils import default_device, frames
 from .basic import Transformer
 
 
@@ -36,6 +35,20 @@ class VideoLandmarksExtractor(Transformer):
     Provides scarfold implementations and signatures for methods
     '''
 
+    default_model_path = None
+
+    def __init__(
+        self,
+        model_path: Optional[File] = None,
+        n_jobs: int = 1,
+        device: Optional[str] = None,
+        verbose: bool = False,
+    ):
+        self.model_path = model_path or self.default_model_path
+        self.n_jobs = n_jobs
+        self.device = device or default_device
+        self.verbose = verbose
+
     def transform(self, videos: Iterable[Path]) -> List[np.ndarray]:
         '''Extracts face landmarks from given videos
 
@@ -59,26 +72,14 @@ class DlibExtractor(VideoLandmarksExtractor):
     Pretrained models taken from http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
     '''
 
-    default_predictor_path = _models_dir / 'dlib/shape_predictor_68_face_landmarks.dat'
-
-    indexes = inds_68
-
-    def __init__(self, predictor_path: Optional[Path] = None, n_jobs: int = -1):
-        '''
-        Args:
-            predictor_path: path to file `shape_predictor_68_face_landmarks.dat`
-                which could be downloaded from oficial dlib site
-            n_jobs: parameter for joblib
-        '''
-        self.predictor_path = predictor_path or DlibExtractor.default_predictor_path
-        self.n_jobs = n_jobs
+    default_model_path = _models_dir / 'dlib/shape_predictor_68_face_landmarks.dat'
 
     def _transform(self, videos):
         '''Implements :py:funct:`.VideoLandmarksExtractor.transform`
         '''
         delayed_extract = delayed(DlibExtractor.extract_shapes)
         dataset = Parallel(n_jobs=self.n_jobs)(
-            delayed_extract(video_path, self.predictor_path) for video_path in videos
+            delayed_extract(video_path, self.model_path) for video_path in videos
         )
         return dataset
 
@@ -98,9 +99,7 @@ class DlibExtractor(VideoLandmarksExtractor):
         return faces[0]
 
     @staticmethod
-    def extract_shapes(
-        video_path: Path, predictor_path: Optional[Path] = None
-    ) -> np.ndarray:
+    def extract_shapes(video_path: Path, model_path: Optional[Path] = None) -> np.ndarray:
         '''Extracts points from given video
 
         Note: this function assumes that person's face doesn't change position
@@ -109,7 +108,7 @@ class DlibExtractor(VideoLandmarksExtractor):
         Returns:
             ndarray shaped (#frames, 68, 2) - face landmarks for each frame
         '''
-        predictor_path = predictor_path or DlibExtractor.default_predictor_path
+        model_path = model_path or DlibExtractor.default_model_path
 
         # first detect face position
         for frame in frames(video_path):
@@ -117,7 +116,7 @@ class DlibExtractor(VideoLandmarksExtractor):
             if face is not None:
                 break
 
-        predictor = dlib.shape_predictor(predictor_path.as_posix())
+        predictor = dlib.shape_predictor(model_path.as_posix())
         extracted = []
 
         for frame in frames(video_path):
@@ -131,17 +130,20 @@ class FaExtractor(VideoLandmarksExtractor):
     '''Face-Alignment based extractor https://github.com/1adrianb/face-alignment
     '''
 
-    def __init__(self, device=None, *, verbose: bool = False):
-        self.device = str(device or ('cuda' if torch.cuda.is_available() else 'cpu'))
-        if self.device == 'cpu':
-            warnings.warn(
-                'Using CPU calculations which will take a loooong time to evaluate'
-            )
+    def __init__(
+        self,
+        model_path: Optional[Path] = None,
+        n_jobs: int = 1,
+        device: Optional[str] = None,
+        verbose: bool = False,
+    ):
+        super().__init__(model_path, n_jobs, device, verbose)
+        if self.device.type == 'cpu':
+            warnings.warn('Using CPU will take a loooong time to evaluate')
 
         self.extractor = face_alignment.FaceAlignment(
-            face_alignment.LandmarksType._2D, device=self.device
+            face_alignment.LandmarksType._2D, device=str(self.device)
         )
-        self.verbose = verbose
 
     def _transform(self, videos):
         dataset = []
@@ -171,15 +173,17 @@ class SanExtractor(VideoLandmarksExtractor):
     Pretrained model file https://drive.google.com/file/d/18YV8RxuTny6WrWc1eI2B4g3rM_NxtjEi
     '''
 
+    default_model_path = _models_dir / 'landmark_detection/checkpoint_49.pth.tar'
+
     def __init__(
         self,
-        model_path: File = _models_dir / 'landmark_detection/checkpoint_49.pth.tar',
-        device=None,
-        *,
+        model_path: Optional[Path] = None,
+        n_jobs: int = 1,
+        device: Optional[str] = None,
         verbose: bool = False,
     ):
+        super().__init__(model_path, n_jobs, device, verbose)
         self.detector = SAN.SanLandmarkDetector(model_path, device)
-        self.verbose = verbose
 
     def _transform(self, videos):
         dataset = []
