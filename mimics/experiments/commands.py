@@ -9,7 +9,7 @@ from .experiment import Experiment
 datasets_dir = Path(__file__).resolve().parent.parent.parent / 'data'
 
 
-def brows(cv: int = 5, n_jobs: int = 1, verbose: bool = False):
+def brows_alpha(cv: int = 5, n_jobs: int = 1, verbose: bool = False):
     Experiment(
         'brows_alpha',
         datasets_dir / 'alpha',
@@ -25,7 +25,7 @@ def brows(cv: int = 5, n_jobs: int = 1, verbose: bool = False):
     ).evaluate()
 
 
-def smile(cv: int = 5, n_jobs: int = 1, verbose: bool = False):
+def smile_alpha(cv: int = 5, n_jobs: int = 1, verbose: bool = False):
     Experiment(
         'smile_alpha',
         datasets_dir / 'alpha',
