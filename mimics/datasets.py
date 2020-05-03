@@ -76,6 +76,10 @@ class FaceLandmarksDataset(Dataset):
         )
 
     @property
+    def len(self):
+        return len(self)
+
+    @property
     def labels(self):
         return self.markup['hypomimia'].values.copy()
 
