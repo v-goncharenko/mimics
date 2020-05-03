@@ -56,7 +56,7 @@ clfs = {  # {model_name: (model, params_dict)}
             LDA(shrinkage='auto', solver='eigen'),
         ),
         {
-            'csp__n_components': (2, 3, 4, 5, 7),
+            'csp__n_components': (1, 2, 3, 4, 5, 7),
             'csp__transform_into': ('average_power', 'csp_space'),
             'csp__cov_est': ('concat', 'epoch'),
         },

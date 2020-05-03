@@ -47,7 +47,7 @@ class Experiment(object):
 
         extr = self.get_extractor()
         preproc = get_preprocessing(self.points)
-        self.state.dataset = FaceLandmarksDataset(self.dataset_dir, extr, preproc,)
+        self.state.dataset = FaceLandmarksDataset(self.dataset_dir, extr, preproc)
         self.state.cv = StratifiedKFold(self.cv, True)
         self.state.mask = self.state.dataset.markup['exercise'] == self.exercise
         self.state.labels = self.get_labels()
@@ -123,3 +123,7 @@ class Experiment(object):
             raise ValueError('Unknown labels type')
 
         return labels
+
+
+if __name__ == "__main__":
+    exp = Experiment()

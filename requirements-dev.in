@@ -1,3 +1,4 @@
 -r requirements.in
 ipykernel
 mlflow
+fire
