@@ -23,6 +23,12 @@ For development:
 * run `pre-commint install`
 * run `dvc pull` to get all datasets and models (may take a few dozens of minutes)
 
+## Experiments reproduction
+
+Could be performed by `mlflow` utilites e.g. for basic brows crossvalidation
+
+`mlflow run . -e brows_alpha -P cv=5 -P n_jobs=-1 -P verbose=1 --no-conda`
+
 # General scheme
 
 1. Feature extraction: для каждого кадра видео выделение положения лица (предобученные сетки)

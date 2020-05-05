@@ -41,8 +41,6 @@ class Experiment(object):
     log: bool = True
 
     def evaluate(self):
-        if self.log:
-            mlflow.set_experiment(self.name)
         self.state = namedtuple('State', 'dataset cv mask labels features')
 
         extr = self.get_extractor()
@@ -70,7 +68,7 @@ class Experiment(object):
                     self.log_result(clf, param_set, cv_res)
 
     def log_result(self, clf, params, cv_res):
-        with mlflow.start_run():
+        with mlflow.start_run(run_name=self.name):
             mlflow.log_params(
                 {
                     'dataset': self.state.dataset.name,

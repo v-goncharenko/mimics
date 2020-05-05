@@ -1,6 +1,7 @@
 name: mimics
 
 entry_points:
+
   brows_alpha:
     parameters:
       cv: {type: float, default: 5}

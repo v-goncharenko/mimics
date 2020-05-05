@@ -2,11 +2,11 @@ from pathlib import Path
 
 import fire
 
-from ..classifiers import clfs, scores
-from .experiment import Experiment
+from mimics.classifiers import clfs, scores
+from mimics.experiments import Experiment
 
 
-datasets_dir = Path(__file__).resolve().parent.parent.parent / 'data'
+datasets_dir = Path(__file__).resolve().parent / 'data'
 
 
 def brows_alpha(cv: int = 5, n_jobs: int = 1, verbose: bool = False):
