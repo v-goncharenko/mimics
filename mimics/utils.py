@@ -9,10 +9,10 @@ import numpy as np
 import torch
 from scipy import signal
 
-from .types import Directory, File, Iterable, Tuple, Union
+from .types import Device, Directory, File, Iterable, Tuple, Union
 
 
-default_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+default_device: Device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 @contextmanager

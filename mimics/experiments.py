@@ -8,7 +8,7 @@ from sklearn.model_selection import ParameterGrid, StratifiedKFold, cross_valida
 
 from .datasets import FaceLandmarksDataset
 from .transformers import extractors, get_preprocessing
-from .types import Directory, Union
+from .types import Device, Directory, Union
 from .utils import default_device
 
 
@@ -36,7 +36,7 @@ class Experiment(object):
     scores: tuple
     cv: int = 5
     n_jobs: int = 1
-    device = default_device
+    device: Device = default_device
     verbose: bool = False
     log: bool = True
 

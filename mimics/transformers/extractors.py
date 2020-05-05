@@ -5,11 +5,12 @@ from typing import Iterable, List
 import dlib
 import face_alignment
 import numpy as np
+import torch
 from joblib import Parallel, delayed
 
 import SAN
 
-from ..types import File, Optional
+from ..types import Device, File, Optional
 from ..utils import default_device, frames
 from .basic import Transformer
 
@@ -41,12 +42,12 @@ class VideoLandmarksExtractor(Transformer):
         self,
         model_path: Optional[File] = None,
         n_jobs: int = 1,
-        device: Optional[str] = None,
+        device: Optional[Device] = None,
         verbose: bool = False,
     ):
         self.model_path = model_path or self.default_model_path
         self.n_jobs = n_jobs
-        self.device = device or default_device
+        self.device = torch.device(device) or default_device
         self.verbose = verbose
 
     def transform(self, videos: Iterable[Path]) -> List[np.ndarray]:
@@ -134,7 +135,7 @@ class FaExtractor(VideoLandmarksExtractor):
         self,
         model_path: Optional[Path] = None,
         n_jobs: int = 1,
-        device: Optional[str] = None,
+        device: Optional[Device] = None,
         verbose: bool = False,
     ):
         super().__init__(model_path, n_jobs, device, verbose)
@@ -179,7 +180,7 @@ class SanExtractor(VideoLandmarksExtractor):
         self,
         model_path: Optional[Path] = None,
         n_jobs: int = 1,
-        device: Optional[str] = None,
+        device: Optional[Device] = None,
         verbose: bool = False,
     ):
         super().__init__(model_path, n_jobs, device, verbose)
