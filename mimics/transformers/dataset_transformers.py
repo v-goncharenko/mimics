@@ -62,7 +62,7 @@ class Resampler(DatasetTransformer):
 
         copied from https://github.com/nwhitehead/swmixer/blob/master/swmixer.py
         '''
-        new_len = round(len(signal) / in_rate * out_rate)
+        new_len = int(round(len(signal) / in_rate * out_rate))
 
         return np.interp(
             np.linspace(0.0, 1.0, new_len),  # where to interpret
@@ -84,7 +84,7 @@ class Resampler(DatasetTransformer):
             copy=False,
             assume_sorted=True,
         )
-        new_len = round(len(signal) / in_rate * out_rate)
+        new_len = int(round(len(signal) / in_rate * out_rate))
         return funct(np.linspace(0.0, 1.0, new_len))
 
     def __init__(self, target_rate: float, *, kind: str = kind_scipy):
