@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import fire
+import numpy as np
 
 from mimics.classifiers import clfs, scores
 from mimics.experiments import Experiment
@@ -54,7 +55,7 @@ def smile_alpha(
 def low_brows_alpha(
     cv: int = 5, n_jobs: int = 1, device: Device = default_device, verbose: bool = False
 ):
-    for low in range(0, 1, 0.1):
+    for low in np.arange(0, 1, 0.1):
         Experiment(
             'low_brows_alpha',
             datasets_dir / 'alpha',
