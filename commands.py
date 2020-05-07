@@ -95,7 +95,7 @@ def low_smile_alpha(
 
 
 def high_brows_alpha(
-    low: float = 0.2,
+    low: float = 0.45,
     cv: int = 5,
     n_jobs: int = 1,
     device: Device = default_device,
@@ -120,7 +120,7 @@ def high_brows_alpha(
 
 
 def high_smile_alpha(
-    low: float = 0.2,
+    low: float = 0.65,
     cv: int = 5,
     n_jobs: int = 1,
     device: Device = default_device,

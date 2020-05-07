@@ -29,6 +29,12 @@ Could be performed by `mlflow` utilites e.g. for basic brows crossvalidation
 
 `mlflow run . -e brows_alpha -P cv=5 -P n_jobs=-1 -P verbose=1 --no-conda`
 
+## Optimal params
+* brows (alpha)
+  * low: 0.45, high: 5.0
+* smile (alpha)
+  * low: 0.65, high: 7.0
+
 # General scheme
 
 1. Feature extraction: для каждого кадра видео выделение положения лица (предобученные сетки)
