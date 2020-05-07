@@ -76,6 +76,9 @@ class Experiment(object):
                 {
                     'dataset': self.state.dataset.name,
                     'extractor': self.extractor,
+                    'points': self.points,
+                    'low': min(self.cutoffs),
+                    'high': max(self.cutoffs),
                     'exercise': self.exercise,
                     'labeling': self.labeling,
                     'cv': self.cv,
