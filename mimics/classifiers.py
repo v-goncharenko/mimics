@@ -1,8 +1,7 @@
 import numpy as np
-from mne.decoding import CSP, Vectorizer
+from mne.decoding import CSP
 from pyriemann.classification import MDM
 from pyriemann.estimation import ERPCovariances
-from pyriemann.spatialfilters import Xdawn
 from pyriemann.tangentspace import TangentSpace
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.ensemble import RandomForestClassifier
@@ -30,13 +29,13 @@ clfs = {  # {model_name: (model, params_dict)}
         },
     ),
 
-    'pure LDA': (
-        make_pipeline(
-            Flattener(),
-            LDA(solver='lsqr', shrinkage='auto'),
-        ),
-        {},
-    ),
+    # 'pure LDA': (
+    #     make_pipeline(
+    #         Flattener(),
+    #         LDA(solver='lsqr', shrinkage='auto'),
+    #     ),
+    #     {},
+    # ),
 
     'pure SVM': (
         make_pipeline(
@@ -57,21 +56,22 @@ clfs = {  # {model_name: (model, params_dict)}
         ),
         {
             'csp__n_components': (1, 2, 3, 4, 5, 7),
-            'csp__transform_into': ('average_power', 'csp_space'),
+            # 'csp__transform_into': ('average_power', 'csp_space'),
             'csp__cov_est': ('concat', 'epoch'),
         },
     ),
 
-    'Xdawn LDA': (
-        make_pipeline(
-            Xdawn(2, classes=[1]),
-            Vectorizer(),
-            LDA(shrinkage='auto', solver='eigen'),
-        ),
-        {
-            'xdawn__nfilter': (2, 4, 6),
-        },
-    ),
+    # 'Xdawn LDA': (
+    # from pyriemann.spatialfilters import Xdawn
+    #     make_pipeline(
+    #         Xdawn(2, classes=[1]),
+    #         Flattener(),
+    #         LDA(shrinkage='auto', solver='eigen'),
+    #     ),
+    #     {
+    #         'xdawn__nfilter': (2, 4, 6),
+    #     },
+    # ),
 
     'ERPCov TS LR': (
         make_pipeline(
@@ -81,7 +81,7 @@ clfs = {  # {model_name: (model, params_dict)}
             LogisticRegression(penalty='l2', solver='saga', l1_ratio=0.5, max_iter=1000),
         ),
         {
-            'erpcovariances__estimator': ('oas', 'lwf', 'scm'),
+            'erpcovariances__estimator': ('oas', 'lwf'),  # , 'scm'),
             'logisticregression__penalty': ('l2', 'l1'),  # , 'elasticnet'),
             'logisticregression__C': np.exp(np.linspace(-4, 4, 5)),
         },

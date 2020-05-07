@@ -73,5 +73,26 @@ def low_brows_alpha(
         ).evaluate()
 
 
+def low_smile_alpha(
+    cv: int = 5, n_jobs: int = 1, device: Device = default_device, verbose: bool = False
+):
+    for low in np.arange(0.1, 1, 0.1):
+        Experiment(
+            'low_brows_alpha',
+            datasets_dir / 'alpha',
+            'FaExtractor',
+            'lips',
+            (low, 3.0),
+            'S',
+            'hypomimia',
+            clfs,
+            scores,
+            cv,
+            n_jobs=n_jobs,
+            device=device,
+            verbose=True,
+        ).evaluate()
+
+
 if __name__ == "__main__":
     fire.Fire()
