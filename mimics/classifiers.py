@@ -21,7 +21,7 @@ clfs = {  # {model_name: (model, params_dict)}
     'pure LR': (
         make_pipeline(
             Flattener(),
-            LogisticRegression(solver='saga', l1_ratio=0.5, max_iter=1000),
+            LogisticRegression(solver='saga', l1_ratio=0.5, max_iter=1500),
         ),
         {
             'logisticregression__penalty': ('l1', 'l2', 'elasticnet'),
@@ -78,7 +78,7 @@ clfs = {  # {model_name: (model, params_dict)}
             PointsToChannels(),
             ERPCovariances(estimator='oas'),
             TangentSpace(),
-            LogisticRegression(penalty='l2', solver='saga', l1_ratio=0.5, max_iter=1000),
+            LogisticRegression(solver='saga', l1_ratio=0.5, max_iter=1500),
         ),
         {
             'erpcovariances__estimator': ('oas', 'lwf'),  # , 'scm'),

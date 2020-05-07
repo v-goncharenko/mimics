@@ -78,11 +78,61 @@ def low_smile_alpha(
 ):
     for low in np.arange(0.1, 1, 0.1):
         Experiment(
-            'low_brows_alpha',
+            'low_smile_alpha',
             datasets_dir / 'alpha',
             'FaExtractor',
             'lips',
             (low, 3.0),
+            'S',
+            'hypomimia',
+            clfs,
+            scores,
+            cv,
+            n_jobs=n_jobs,
+            device=device,
+            verbose=True,
+        ).evaluate()
+
+
+def high_brows_alpha(
+    low: float = 0.2,
+    cv: int = 5,
+    n_jobs: int = 1,
+    device: Device = default_device,
+    verbose: bool = False,
+):
+    for high in np.arange(2, 10, 1):
+        Experiment(
+            'high_brows_alpha',
+            datasets_dir / 'alpha',
+            'FaExtractor',
+            'brows',
+            (low, high),
+            'B',
+            'hypomimia',
+            clfs,
+            scores,
+            cv,
+            n_jobs=n_jobs,
+            device=device,
+            verbose=True,
+        ).evaluate()
+
+
+def high_smile_alpha(
+    low: float = 0.2,
+    cv: int = 5,
+    n_jobs: int = 1,
+    device: Device = default_device,
+    verbose: bool = False,
+):
+    for high in np.arange(2, 10, 1):
+        Experiment(
+            'high_smile_alpha',
+            datasets_dir / 'alpha',
+            'FaExtractor',
+            'lips',
+            (low, high),
             'S',
             'hypomimia',
             clfs,
