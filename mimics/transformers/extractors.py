@@ -47,7 +47,7 @@ class VideoLandmarksExtractor(Transformer):
     ):
         self.model_path = model_path or self.default_model_path
         self.n_jobs = n_jobs
-        self.device = torch.device(device) or default_device
+        self.device = torch.device(device or default_device)
         self.verbose = verbose
 
     def transform(self, videos: Iterable[Path]) -> List[np.ndarray]:
