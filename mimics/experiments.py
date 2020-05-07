@@ -8,7 +8,7 @@ from sklearn.model_selection import ParameterGrid, StratifiedKFold, cross_valida
 
 from .datasets import FaceLandmarksDataset
 from .transformers import extractors, get_preprocessing
-from .types import Device, Directory, Union
+from .types import Device, Directory, Tuple, Union
 from .utils import default_device
 
 
@@ -30,6 +30,7 @@ class Experiment(object):
     dataset_dir: Directory
     extractor: str
     points: Union[str, tuple]
+    cutoffs: Tuple[float, float]
     exercise: str
     labeling: str
     clfs: dict
@@ -46,7 +47,7 @@ class Experiment(object):
         self.state = namedtuple('State', 'dataset cv mask labels features')
 
         extr = self.get_extractor()
-        preproc = get_preprocessing(self.points)
+        preproc = get_preprocessing(self.points, *self.cutoffs)
         self.state.dataset = FaceLandmarksDataset(self.dataset_dir, extr, preproc)
         self.state.cv = StratifiedKFold(self.cv, True)
         self.state.mask = self.state.dataset.markup['exercise'] == self.exercise
