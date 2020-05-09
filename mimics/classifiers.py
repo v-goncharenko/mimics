@@ -14,17 +14,19 @@ from .transformers import Flattener, PointsToChannels
 
 scores = ('accuracy', 'precision', 'recall', 'f1', 'roc_auc')
 
+max_iter = 2000  # for Logistic Regression
+
 # fmt: off
 # from https://eeg-notebooks.readthedocs.io/en/latest/visual_p300.html
 # and https://mne.tools/dev/auto_examples/decoding/plot_decoding_csp_eeg.html
-clfs = {  # {model_name: (model, params_dict)}
+clfs_full = {  # {model_name: (model, params_dict)}
     'pure LR': (
         make_pipeline(
             Flattener(),
-            LogisticRegression(solver='saga', l1_ratio=0.5, max_iter=1500),
+            LogisticRegression(solver='saga', max_iter=max_iter),  # , l1_ratio=0.5),
         ),
         {
-            'logisticregression__penalty': ('l1', 'l2', 'elasticnet'),
+            'logisticregression__penalty': ('l1', 'l2'),  # , 'elasticnet'),
             'logisticregression__C': np.exp(np.linspace(-4, 4, 5)),
         },
     ),
@@ -55,8 +57,9 @@ clfs = {  # {model_name: (model, params_dict)}
             LDA(shrinkage='auto', solver='eigen'),
         ),
         {
-            'csp__n_components': (1, 2, 3, 4, 5, 7),
+            'csp__n_components': (2, 3, 4, 5, 7),
             # 'csp__transform_into': ('average_power', 'csp_space'),
+            'csp__log': (True, False),
             'csp__cov_est': ('concat', 'epoch'),
         },
     ),
@@ -78,7 +81,7 @@ clfs = {  # {model_name: (model, params_dict)}
             PointsToChannels(),
             ERPCovariances(estimator='oas'),
             TangentSpace(),
-            LogisticRegression(solver='saga', l1_ratio=0.5, max_iter=1500),
+            LogisticRegression(solver='saga', max_iter=max_iter),  # , l1_ratio=0.5),
         ),
         {
             'erpcovariances__estimator': ('oas', 'lwf'),  # , 'scm'),
@@ -110,12 +113,30 @@ clfs = {  # {model_name: (model, params_dict)}
     ),
 }
 
-for name, (clf, _) in clfs.items():
+for name, (clf, _) in clfs_full.items():
     clf.name = name
+
+
+clfs_small = {
+    'pure LR': (
+        make_pipeline(
+            Flattener(),
+            LogisticRegression(solver='saga', max_iter=max_iter),
+        ),
+        {
+            'logisticregression__C': np.exp(np.linspace(-4, 4, 5)),
+        },
+    ),
+}
+
+for name, (clf, _) in clfs_small.items():
+    clf.name = name
+
 # fmt: off
 
 
 __all__ = (
     'scores',
-    'clfs',
+    'clfs_full',
+    'clfs_small',
 )

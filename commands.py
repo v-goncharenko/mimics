@@ -1,15 +1,10 @@
-from pathlib import Path
-
 import fire
 import numpy as np
 
-from mimics.classifiers import clfs, scores
+from mimics.classifiers import clfs_full, clfs_small, scores
 from mimics.experiments import Experiment
 from mimics.types import Device
-from mimics.utils import default_device
-
-
-datasets_dir = Path(__file__).resolve().parent / 'data'
+from mimics.utils import data_dir, default_device
 
 
 def brows_alpha(
@@ -17,13 +12,13 @@ def brows_alpha(
 ):
     Experiment(
         'brows_alpha',
-        datasets_dir / 'alpha',
+        data_dir / 'alpha',
         'FaExtractor',
         'brows',
         (0.2, 3.0),
         'B',
         'hypomimia',
-        clfs,
+        clfs_small,
         scores,
         cv,
         n_jobs=n_jobs,
@@ -37,18 +32,18 @@ def smile_alpha(
 ):
     Experiment(
         'smile_alpha',
-        datasets_dir / 'alpha',
+        data_dir / 'alpha',
         'FaExtractor',
         'lips',
         (0.2, 3.0),
         'S',
         'hypomimia',
-        clfs,
+        clfs_full,
         scores,
-        5,
+        cv,
         n_jobs=n_jobs,
         device=device,
-        verbose=True,
+        verbose=verbose,
     ).evaluate()
 
 
@@ -58,18 +53,18 @@ def low_brows_alpha(
     for low in np.arange(0.1, 1, 0.1):
         Experiment(
             'low_brows_alpha',
-            datasets_dir / 'alpha',
+            data_dir / 'alpha',
             'FaExtractor',
             'brows',
             (low, 3.0),
             'B',
             'hypomimia',
-            clfs,
+            clfs_full,
             scores,
             cv,
             n_jobs=n_jobs,
             device=device,
-            verbose=True,
+            verbose=verbose,
         ).evaluate()
 
 
@@ -79,18 +74,18 @@ def low_smile_alpha(
     for low in np.arange(0.1, 1, 0.1):
         Experiment(
             'low_smile_alpha',
-            datasets_dir / 'alpha',
+            data_dir / 'alpha',
             'FaExtractor',
             'lips',
             (low, 3.0),
             'S',
             'hypomimia',
-            clfs,
+            clfs_full,
             scores,
             cv,
             n_jobs=n_jobs,
             device=device,
-            verbose=True,
+            verbose=verbose,
         ).evaluate()
 
 
@@ -104,18 +99,18 @@ def high_brows_alpha(
     for high in np.arange(2, 10, 1):
         Experiment(
             'high_brows_alpha',
-            datasets_dir / 'alpha',
+            data_dir / 'alpha',
             'FaExtractor',
             'brows',
             (low, high),
             'B',
             'hypomimia',
-            clfs,
+            clfs_full,
             scores,
             cv,
             n_jobs=n_jobs,
             device=device,
-            verbose=True,
+            verbose=verbose,
         ).evaluate()
 
 
@@ -129,18 +124,18 @@ def high_smile_alpha(
     for high in np.arange(2, 10, 1):
         Experiment(
             'high_smile_alpha',
-            datasets_dir / 'alpha',
+            data_dir / 'alpha',
             'FaExtractor',
             'lips',
             (low, high),
             'S',
             'hypomimia',
-            clfs,
+            clfs_full,
             scores,
             cv,
             n_jobs=n_jobs,
             device=device,
-            verbose=True,
+            verbose=verbose,
         ).evaluate()
 
 

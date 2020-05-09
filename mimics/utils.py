@@ -8,11 +8,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from scipy import signal
+from sklearn import metrics
 
 from .types import Device, Directory, File, Iterable, Tuple, Union
 
 
 default_device: Device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+data_dir = Path(__file__).resolve().parent.parent / 'data'
 
 
 @contextmanager
@@ -205,3 +207,8 @@ def copy(source: File, dest: Union[File, Directory]):
     source, dest = Path(source), Path(dest)
     copied = shutil.copy2(source.as_posix(), dest.as_posix())
     return Path(copied)
+
+
+def score(name: str, true_labels, predictions, **kwargs):
+    score_funct = getattr(metrics, f'{name}_score')
+    return score_funct(true_labels, predictions, **kwargs)
