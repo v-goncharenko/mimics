@@ -79,9 +79,18 @@ class FaceLandmarksDataset(Dataset):
     def len(self):
         return len(self)
 
-    @property
-    def labels(self):
-        return self.markup['hypomimia'].values.copy()
+    def labels(self, kind: str = 'hypomimia'):
+        if kind in ('hypomimia', 'yury', 'mikhail'):
+            labels = np.array(self.markup[kind])
+            labels[labels != 0] = 1
+        elif kind == 'coincide':
+            # set 0 (healthy) only to coincided zeros
+            labels = self.markup['mikhail'] + self.markup['yury']
+            labels[labels != 0] = 1
+        else:
+            raise ValueError('Unknown labels type')
+
+        return labels
 
     @property
     def name(self):

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import ClassVar, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -21,4 +21,5 @@ __all__ = (
     'Optional',
     'Tuple',
     'Union',
+    'ClassVar',
 )

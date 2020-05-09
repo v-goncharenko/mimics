@@ -1,8 +1,8 @@
 import fire
 import numpy as np
 
-from mimics.classifiers import clfs_full, clfs_small, scores
-from mimics.experiments import Experiment
+from mimics.classifiers import clfs_full, scores
+from mimics.experiments import GridSearch
 from mimics.types import Device
 from mimics.utils import data_dir, default_device
 
@@ -10,7 +10,7 @@ from mimics.utils import data_dir, default_device
 def brows_alpha(
     cv: int = 5, n_jobs: int = 1, device: Device = default_device, verbose: bool = False
 ):
-    Experiment(
+    GridSearch(
         'brows_alpha',
         data_dir / 'alpha',
         'FaExtractor',
@@ -18,9 +18,9 @@ def brows_alpha(
         (0.2, 3.0),
         'B',
         'hypomimia',
-        clfs_small,
-        scores,
-        cv,
+        clfs=clfs_full,
+        scores=scores,
+        cv=cv,
         n_jobs=n_jobs,
         device=device,
         verbose=True,
@@ -30,7 +30,7 @@ def brows_alpha(
 def smile_alpha(
     cv: int = 5, n_jobs: int = 1, device: Device = default_device, verbose: bool = False
 ):
-    Experiment(
+    GridSearch(
         'smile_alpha',
         data_dir / 'alpha',
         'FaExtractor',
@@ -38,9 +38,9 @@ def smile_alpha(
         (0.2, 3.0),
         'S',
         'hypomimia',
-        clfs_full,
-        scores,
-        cv,
+        clfs=clfs_full,
+        scores=scores,
+        cv=cv,
         n_jobs=n_jobs,
         device=device,
         verbose=verbose,
@@ -51,7 +51,7 @@ def low_brows_alpha(
     cv: int = 5, n_jobs: int = 1, device: Device = default_device, verbose: bool = False
 ):
     for low in np.arange(0.1, 1, 0.1):
-        Experiment(
+        GridSearch(
             'low_brows_alpha',
             data_dir / 'alpha',
             'FaExtractor',
@@ -59,9 +59,9 @@ def low_brows_alpha(
             (low, 3.0),
             'B',
             'hypomimia',
-            clfs_full,
-            scores,
-            cv,
+            clfs=clfs_full,
+            scores=scores,
+            cv=cv,
             n_jobs=n_jobs,
             device=device,
             verbose=verbose,
@@ -72,7 +72,7 @@ def low_smile_alpha(
     cv: int = 5, n_jobs: int = 1, device: Device = default_device, verbose: bool = False
 ):
     for low in np.arange(0.1, 1, 0.1):
-        Experiment(
+        GridSearch(
             'low_smile_alpha',
             data_dir / 'alpha',
             'FaExtractor',
@@ -80,9 +80,9 @@ def low_smile_alpha(
             (low, 3.0),
             'S',
             'hypomimia',
-            clfs_full,
-            scores,
-            cv,
+            clfs=clfs_full,
+            scores=scores,
+            cv=cv,
             n_jobs=n_jobs,
             device=device,
             verbose=verbose,
@@ -97,7 +97,7 @@ def high_brows_alpha(
     verbose: bool = False,
 ):
     for high in np.arange(2, 10, 1):
-        Experiment(
+        GridSearch(
             'high_brows_alpha',
             data_dir / 'alpha',
             'FaExtractor',
@@ -105,9 +105,9 @@ def high_brows_alpha(
             (low, high),
             'B',
             'hypomimia',
-            clfs_full,
-            scores,
-            cv,
+            clfs=clfs_full,
+            scores=scores,
+            cv=cv,
             n_jobs=n_jobs,
             device=device,
             verbose=verbose,
@@ -122,7 +122,7 @@ def high_smile_alpha(
     verbose: bool = False,
 ):
     for high in np.arange(2, 10, 1):
-        Experiment(
+        GridSearch(
             'high_smile_alpha',
             data_dir / 'alpha',
             'FaExtractor',
@@ -130,9 +130,9 @@ def high_smile_alpha(
             (low, high),
             'S',
             'hypomimia',
-            clfs_full,
-            scores,
-            cv,
+            clfs=clfs_full,
+            scores=scores,
+            cv=cv,
             n_jobs=n_jobs,
             device=device,
             verbose=verbose,
