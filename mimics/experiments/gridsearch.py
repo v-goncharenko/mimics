@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.base import clone
 from sklearn.model_selection import ParameterGrid, cross_validate
 
-from ..types import ClassVar, Optional
+from ..types import Optional
 from ..utils import data_dir
 from .base import BaseExperiment
 
@@ -15,7 +15,8 @@ default_artifacts_dir = data_dir / 'tmp'
 
 @dataclass
 class GridSearch(BaseExperiment):
-    '''
+    '''Performs gridsearch over provided classifiers
+
     Args:
         clfs: dict of classifiers and their params e.g. `.classifiers.clfs`
         scores: tuple of scores e.g. `.classifiers.scores`
@@ -23,8 +24,6 @@ class GridSearch(BaseExperiment):
 
     clfs: Optional[dict] = None
     scores: Optional[tuple] = None
-
-    state_fields: ClassVar[str] = 'dataset cv mask labels features'
 
     def evaluate(self):
         super().evaluate()
@@ -41,24 +40,12 @@ class GridSearch(BaseExperiment):
                     n_jobs=self.n_jobs,
                 )
                 if self.log:
-                    self.log_result(clf, param_set, cv_res)
+                    self.log_run(clf, param_set, cv_res)
 
-    def log_result(self, clf, params, cv_res):
+    def log_run(self, clf, params, cv_res):
         with mlflow.start_run():
-            mlflow.log_params(
-                {
-                    'dataset': self.state.dataset.name,
-                    'extractor': self.extractor,
-                    'points': self.points,
-                    'low': min(self.cutoffs),
-                    'high': max(self.cutoffs),
-                    'exercise': self.exercise,
-                    'labeling': self.labeling,
-                    'cv': self.cv,
-                    'clf': clf.name,
-                    **params,
-                }
-            )
+            super().log_run()
+            mlflow.log_params({'clf': clf.name, **params})
 
             for aggr in (np.mean, np.std, np.median):
                 mlflow.log_metrics(
@@ -67,13 +54,3 @@ class GridSearch(BaseExperiment):
                         for name in self.scores
                     }
                 )
-            mlflow.log_metrics(
-                {
-                    'records': len(self.state.labels),
-                    'class_balance': self.state.labels.mean(),
-                }
-            )
-
-
-# @dataclass
-# class CrossvalidatedCsp(object):

@@ -12,7 +12,9 @@ from ..utils import default_device
 
 @dataclass
 class BaseExperiment(object):
-    '''
+    '''Provides common parameters and preparation to start an experiment
+    Base class for all the others
+
     Args:
         name: name of the experiment for MLflow
         extractor: classname of Extractor see `.tranformers.extractors`
@@ -40,7 +42,7 @@ class BaseExperiment(object):
     verbose: bool = False
     log: bool = True
 
-    state_fields: ClassVar[str] = ''
+    state_fields: ClassVar[str] = 'dataset cv mask labels features'
 
     def get_extractor(self):
         extr_class = getattr(extractors, self.extractor)
@@ -60,3 +62,26 @@ class BaseExperiment(object):
         self.state.mask = self.state.dataset.markup['exercise'] == self.exercise
         self.state.features = self.state.dataset.data[self.state.mask]
         self.state.labels = self.state.dataset.labels(self.labeling)[self.state.mask]
+
+    def log_run(self):
+        '''Logs run params to mlflow. Call once per run
+        '''
+        mlflow.log_params(
+            {
+                'dataset': self.state.dataset.name,
+                'extractor': self.extractor,
+                'points': self.points,
+                'low': min(self.cutoffs),
+                'high': max(self.cutoffs),
+                'exercise': self.exercise,
+                'labeling': self.labeling,
+                'cv': self.cv,
+            }
+        )
+
+        mlflow.log_metrics(
+            {
+                'records': len(self.state.labels),
+                'class_balance': self.state.labels.mean(),
+            }
+        )

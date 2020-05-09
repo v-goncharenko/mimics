@@ -2,7 +2,7 @@ import fire
 import numpy as np
 
 from mimics.classifiers import clfs_full, scores
-from mimics.experiments import GridSearch
+from mimics.experiments import CrossvalidatedCsp, GridSearch
 from mimics.types import Device
 from mimics.utils import data_dir, default_device
 
@@ -23,7 +23,7 @@ def brows_alpha(
         cv=cv,
         n_jobs=n_jobs,
         device=device,
-        verbose=True,
+        verbose=verbose,
     ).evaluate()
 
 
@@ -137,6 +137,20 @@ def high_smile_alpha(
             device=device,
             verbose=verbose,
         ).evaluate()
+
+
+def csp_brows_alpha(cv: int = 5, verbose: bool = False):
+    CrossvalidatedCsp(
+        'csp_brows_alpha',
+        data_dir / 'alpha',
+        'FaExtractor',
+        'brows',
+        (0.45, 5.0),
+        'B',
+        'hypomimia',
+        cv=cv,
+        verbose=verbose,
+    ).evaluate()
 
 
 if __name__ == "__main__":
