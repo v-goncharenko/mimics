@@ -2,6 +2,7 @@ import numpy as np
 from mne.decoding import CSP
 from pyriemann.classification import MDM
 from pyriemann.estimation import ERPCovariances
+from pyriemann.spatialfilters import Xdawn
 from pyriemann.tangentspace import TangentSpace
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.ensemble import RandomForestClassifier
@@ -60,21 +61,23 @@ clfs_full = {  # {model_name: (model, params_dict)}
             'csp__n_components': (2, 3, 4, 5, 7),
             # 'csp__transform_into': ('average_power', 'csp_space'),
             'csp__log': (True, False),
-            'csp__cov_est': ('concat', 'epoch'),
+            'csp__reg': ('empirical', 'shrunk', 'pca', 'oas'),
+            # 'csp__cov_est': ('concat', 'epoch'),
         },
     ),
 
-    # 'Xdawn LDA': (
-    # from pyriemann.spatialfilters import Xdawn
-    #     make_pipeline(
-    #         Xdawn(2, classes=[1]),
-    #         Flattener(),
-    #         LDA(shrinkage='auto', solver='eigen'),
-    #     ),
-    #     {
-    #         'xdawn__nfilter': (2, 4, 6),
-    #     },
-    # ),
+    'Xdawn LDA': (
+        make_pipeline(
+            PointsToChannels(),
+            Xdawn(),
+            Flattener(),
+            LDA(shrinkage='auto', solver='eigen'),
+        ),
+        {
+            'xdawn__nfilter': (2, 4, 6),
+            'xdawn__estimator': ('scm', 'lwf', 'oas'),
+        },
+    ),
 
     'ERPCov TS LR': (
         make_pipeline(
@@ -85,6 +88,7 @@ clfs_full = {  # {model_name: (model, params_dict)}
         ),
         {
             'erpcovariances__estimator': ('oas', 'lwf'),  # , 'scm'),
+            'erpcovariances__svd': (None, 10),
             'logisticregression__penalty': ('l2', 'l1'),  # , 'elasticnet'),
             'logisticregression__C': np.exp(np.linspace(-4, 4, 5)),
         },
@@ -98,6 +102,7 @@ clfs_full = {  # {model_name: (model, params_dict)}
         ),
         {
             'erpcovariances__estimator': ('oas', 'lwf'),
+            'erpcovariances__svd': (None, 10),
         },
     ),
 
