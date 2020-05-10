@@ -61,7 +61,7 @@ clfs_full = {  # {model_name: (model, params_dict)}
             'csp__n_components': (2, 3, 4, 5, 7),
             # 'csp__transform_into': ('average_power', 'csp_space'),
             'csp__log': (True, False),
-            'csp__reg': ('empirical', 'shrunk', 'pca', 'oas'),
+            'csp__reg': ('empirical', 'shrunk', 'oas'),
             # 'csp__cov_est': ('concat', 'epoch'),
         },
     ),
