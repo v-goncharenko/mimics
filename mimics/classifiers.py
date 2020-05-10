@@ -2,7 +2,6 @@ import numpy as np
 from mne.decoding import CSP
 from pyriemann.classification import MDM
 from pyriemann.estimation import ERPCovariances
-from pyriemann.spatialfilters import Xdawn
 from pyriemann.tangentspace import TangentSpace
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.ensemble import RandomForestClassifier
@@ -66,18 +65,19 @@ clfs_full = {  # {model_name: (model, params_dict)}
         },
     ),
 
-    'Xdawn LDA': (
-        make_pipeline(
-            PointsToChannels(),
-            Xdawn(),
-            Flattener(),
-            LDA(shrinkage='auto', solver='eigen'),
-        ),
-        {
-            'xdawn__nfilter': (2, 4, 6),
-            'xdawn__estimator': ('scm', 'lwf', 'oas'),
-        },
-    ),
+    # from pyriemann.spatialfilters import Xdawn
+    # 'Xdawn LDA': (
+    #     make_pipeline(
+    #         PointsToChannels(),
+    #         Xdawn(),
+    #         Flattener(),
+    #         LDA(shrinkage='auto', solver='eigen'),
+    #     ),
+    #     {
+    #         'xdawn__nfilter': (2, 4, 6),
+    #         'xdawn__estimator': ('scm', 'lwf', 'oas'),
+    #     },
+    # ),
 
     'ERPCov TS LR': (
         make_pipeline(
