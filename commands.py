@@ -153,5 +153,19 @@ def csp_brows_alpha(cv: int = 5, verbose: bool = False):
     ).evaluate()
 
 
+def csp_smile_alpha(cv: int = 5, verbose: bool = False):
+    CrossvalidatedCsp(
+        'csp_smile_alpha',
+        data_dir / 'alpha',
+        'FaExtractor',
+        'lips',
+        (0.65, 6.0),
+        'S',
+        'hypomimia',
+        cv=cv,
+        verbose=verbose,
+    ).evaluate()
+
+
 if __name__ == "__main__":
     fire.Fire()

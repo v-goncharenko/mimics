@@ -20,6 +20,7 @@ class CrossvalidatedCsp(BaseExperiment):
 
         channelled = PointsToChannels().fit_transform(self.state.features)
         labels = self.state.labels
+        markup = self.state.dataset.markup[self.state.mask]
         with mlflow.start_run():
             self.log_run()
 
@@ -29,12 +30,13 @@ class CrossvalidatedCsp(BaseExperiment):
                 csp.fit(channelled[train_inds], labels[train_inds])
                 signals = csp.transform(channelled[test_inds])[:, 0, :]
                 for ind, signal in zip(test_inds, signals):
+                    orig_id = markup.iloc[ind, 0]
+                    filename = self.artifacts_dir / f'CSP record {orig_id:03}.png'
                     if self.verbose:
-                        print(f'plotting for {ind}')
+                        print(filename.stem)
 
-                    filename = self.artifacts_dir / f'signal_{ind:02}.png'
                     plt.clf()
                     plt.plot(signal)
-                    plt.title(f'record {ind}')
+                    plt.title(filename.stem)
                     plt.savefig(filename)
                     mlflow.log_artifact(filename)
