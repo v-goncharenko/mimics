@@ -14,22 +14,22 @@ from .transformers import Flattener, PointsToChannels
 
 scores = ('accuracy', 'precision', 'recall', 'f1', 'roc_auc')
 
-max_iter = 2000  # for Logistic Regression
+max_iter = 2500  # for Logistic Regression
 
 # fmt: off
 # from https://eeg-notebooks.readthedocs.io/en/latest/visual_p300.html
 # and https://mne.tools/dev/auto_examples/decoding/plot_decoding_csp_eeg.html
 clfs_full = {  # {model_name: (model, params_dict)}
-    'pure LR': (
-        make_pipeline(
-            Flattener(),
-            LogisticRegression(solver='saga', max_iter=max_iter),  # , l1_ratio=0.5),
-        ),
-        {
-            'logisticregression__penalty': ('l1', 'l2'),  # , 'elasticnet'),
-            'logisticregression__C': np.exp(np.linspace(-4, 4, 5)),
-        },
-    ),
+    # 'pure LR': (
+    #     make_pipeline(
+    #         Flattener(),
+    #         LogisticRegression(solver='saga', max_iter=max_iter),  # , l1_ratio=0.5),
+    #     ),
+    #     {
+    #         'logisticregression__penalty': ('l1', 'l2'),  # , 'elasticnet'),
+    #         'logisticregression__C': np.exp(np.linspace(-4, 4, 5)),
+    #     },
+    # ),
 
     # 'pure LDA': (
     #     make_pipeline(
@@ -57,7 +57,7 @@ clfs_full = {  # {model_name: (model, params_dict)}
             LDA(shrinkage='auto', solver='eigen'),
         ),
         {
-            'csp__n_components': (2, 3, 4, 5, 7),
+            'csp__n_components': (2, 3, 4),
             # 'csp__transform_into': ('average_power', 'csp_space'),
             'csp__log': (True, False),
             'csp__reg': ('empirical', 'shrunk', 'oas'),
