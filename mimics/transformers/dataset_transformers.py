@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from functools import partial
 
 import numpy as np
@@ -36,6 +37,7 @@ class DatasetTransformer(Transformer):
         raise NotImplementedError()
 
 
+@dataclass
 class Resampler(DatasetTransformer):
     '''Resamples signals in a given dataset to one rate.
 
@@ -53,8 +55,9 @@ class Resampler(DatasetTransformer):
         No disadvantages observed
     '''
 
-    kind_np = 'np'
-    kind_scipy = 'scipy'
+    target_rate: float
+    kind: str = 'scipy'
+    fix_fps: bool = True
 
     @staticmethod
     def resample_interp(signal: np.ndarray, in_rate: float, out_rate: float):
@@ -87,12 +90,8 @@ class Resampler(DatasetTransformer):
         new_len = int(round(len(signal) / in_rate * out_rate))
         return funct(np.linspace(0.0, 1.0, new_len))
 
-    def __init__(self, target_rate: float, *, kind: str = kind_scipy):
-        self.target_rate = target_rate
-        self.kind = kind
-
     def transform(self, dataset):
-        if self.kind == self.kind_scipy:
+        if self.kind == 'scipy':
             funct = self.resample_scipy
         else:
             funct = self.resample_interp_mult
@@ -101,20 +100,23 @@ class Resampler(DatasetTransformer):
             funct(record, fps, self.target_rate, 0)
             for record, fps in zip(dataset, dataset.markup['fps'])
         ]
+
+        if self.fix_fps:
+            dataset.markup['orig_fps'] = dataset.markup['fps']
+            dataset.markup['fps'] = self.target_rate
+
         return dataset
 
 
+@dataclass
 class ConditionalFilter(DatasetTransformer):
     '''Applies digital bandpass filter to signals in a dataset
         according to each signal's rate
     '''
 
-    def __init__(
-        self, cutoffs: Tuple[float], order: int, *, preserve_mean: bool = False,
-    ):
-        self.cutoffs = cutoffs
-        self.order = order
-        self.preserve_mean = preserve_mean
+    cutoffs: Tuple[float]
+    order: int
+    preserve_mean: bool = False
 
     def transform(self, dataset):
         for i, fps in enumerate(dataset.markup['fps']):

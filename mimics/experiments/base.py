@@ -55,6 +55,8 @@ class BaseExperiment(object):
 
         self.state.cv = StratifiedKFold(self.cv, True)
 
+        if self.verbose:
+            print('Started dataset construction')
         extr = self.get_extractor()
         preproc = get_preprocessing(self.points, *self.cutoffs)
         self.state.dataset = FaceLandmarksDataset(self.dataset_dir, extr, preproc)

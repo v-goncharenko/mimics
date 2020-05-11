@@ -26,7 +26,7 @@ from .transformers import (
 
 def get_preprocessing(
     points: Union[str, tuple] = 'brows',
-    low: float = 0.2,
+    low: float = 0.4,
     high: float = 3.0,
     resample_to: Optional[float] = None,
     *,

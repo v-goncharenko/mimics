@@ -17,11 +17,14 @@ from .basic import Transformer
 
 # groups of indexes according to 300-W dataset https://ibug.doc.ic.ac.uk/resources/300-W/
 inds_68 = {
+    'all': tuple(range(68)),
     'nose': tuple(range(27, 36)),
     'right_brow': tuple(range(17, 22)),
     'left_brow': tuple(range(22, 27)),
     'brows': tuple(range(17, 27)),
     'lips': tuple(range(48, 68)),
+    'right_lips': (48, 49, 50, 58, 59, 60, 61, 67),
+    'left_lips': (52, 53, 54, 55, 56, 63, 64, 65),
     'right_eye': tuple(range(36, 42)),
     'left_eye': tuple(range(42, 48)),
     'eyes': tuple(range(36, 48)),

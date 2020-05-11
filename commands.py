@@ -2,7 +2,8 @@ import fire
 import numpy as np
 
 from mimics.classifiers import clfs_full, scores
-from mimics.experiments import CrossvalidatedCsp, GridSearch
+from mimics.experiments import CrossvalidatedCsp, GridSearch, WindowedCorrelations
+from mimics.transformers.extractors import inds_68
 from mimics.types import Device
 from mimics.utils import data_dir, default_device
 
@@ -163,6 +164,40 @@ def csp_smile_alpha(cv: int = 5, verbose: bool = False):
         'S',
         'hypomimia',
         cv=cv,
+        verbose=verbose,
+    ).evaluate()
+
+
+def corrs_brows_alpha(verbose: bool = False):
+    WindowedCorrelations(
+        'corrs_brows_alpha',
+        data_dir / 'alpha',
+        'FaExtractor',
+        'all',
+        (0.45, 5.0),
+        'B',
+        'hypomimia',
+        windows=(1, 1.5, 2),
+        axes=(1,),
+        right_points=inds_68['right_brow'],
+        left_points=inds_68['left_brow'],
+        verbose=verbose,
+    ).evaluate()
+
+
+def corrs_smile_alpha(verbose: bool = False):
+    WindowedCorrelations(
+        'corrs_smile_alpha',
+        data_dir / 'alpha',
+        'FaExtractor',
+        'all',
+        (0.65, 6.0),
+        'S',
+        'hypomimia',
+        windows=(1.5,),
+        axes=(0, 1),
+        right_points=inds_68['right_lips'],
+        left_points=inds_68['left_lips'],
         verbose=verbose,
     ).evaluate()
 
