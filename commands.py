@@ -207,8 +207,10 @@ def corrs_smile_alpha(verbose: bool = False):
     ).evaluate()
 
 
-def draw_alpha(verbose: bool = False):
-    DrawKeypoints(data_dir / 'alpha', cutoff=2.5, verbose=verbose,).evaluate()
+def draw_points(dataset: str, n_jobs: int = 1, verbose: bool = False):
+    DrawKeypoints(
+        data_dir / dataset, cutoff=2.5, n_jobs=n_jobs, verbose=verbose
+    ).evaluate()
 
 
 if __name__ == "__main__":
