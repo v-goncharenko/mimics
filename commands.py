@@ -13,36 +13,26 @@ from mimics.types import Device
 from mimics.utils import data_dir, default_device
 
 
-def brows_alpha(
-    cv: int = 5, n_jobs: int = 1, device: Device = default_device, verbose: bool = False
-):
-    GridSearch(
-        'brows_alpha',
-        data_dir / 'alpha',
-        'FaExtractor',
-        'brows',
-        (0.45, 5.0),
-        'B',
-        'hypomimia',
-        clfs=clfs_full,
-        scores=scores,
-        cv=cv,
-        n_jobs=n_jobs,
-        device=device,
-        verbose=verbose,
-    ).evaluate()
+points = {'brows': 'brows', 'smile': 'lips'}
+exercises = {'brows': 'B', 'smile': 'S'}
+cutoffs = {'brows': (0.45, 5.0), 'smile': (0.65, 6.0)}
 
 
-def smile_alpha(
-    cv: int = 5, n_jobs: int = 1, device: Device = default_device, verbose: bool = False
+def gridsearch(
+    dataset: str,
+    exercise: str,
+    cv: int = 5,
+    n_jobs: int = 1,
+    device: Device = default_device,
+    verbose: bool = False,
 ):
     GridSearch(
-        'smile_alpha',
-        data_dir / 'alpha',
+        f'{exercise}_{dataset}',
+        data_dir / dataset,
         'FaExtractor',
-        'lips',
-        (0.65, 6.0),
-        'S',
+        points[exercise],
+        cutoffs[exercise],
+        exercises[exercise],
         'hypomimia',
         clfs=clfs_full,
         scores=scores,
@@ -145,65 +135,54 @@ def high_smile_alpha(
         ).evaluate()
 
 
-def csp_brows_alpha(cv: int = 5, verbose: bool = False):
+def plot_csp(dataset: str, exercise: str, cv: int = 5, verbose: bool = False):
     CrossvalidatedCsp(
-        'csp_brows_alpha',
-        data_dir / 'alpha',
+        f'csp_{exercise}_{dataset}',
+        data_dir / dataset,
         'FaExtractor',
-        'brows',
+        points[exercise],
         (0.45, 5.0),
-        'B',
+        exercises[exercise],
         'hypomimia',
         cv=cv,
         verbose=verbose,
+        log=False,
     ).evaluate()
 
 
-def csp_smile_alpha(cv: int = 5, verbose: bool = False):
-    CrossvalidatedCsp(
-        'csp_smile_alpha',
-        data_dir / 'alpha',
-        'FaExtractor',
-        'lips',
-        (0.65, 6.0),
-        'S',
-        'hypomimia',
-        cv=cv,
-        verbose=verbose,
-    ).evaluate()
-
-
-def corrs_brows_alpha(verbose: bool = False):
+def corrs_brows(dataset: str, verbose: bool = False):
     WindowedCorrelations(
-        'corrs_brows_alpha',
-        data_dir / 'alpha',
+        f'corrs_brows_{dataset}',
+        data_dir / dataset,
         'FaExtractor',
         'all',
         (0.45, 5.0),
-        'B',
+        exercises['brows'],
         'hypomimia',
         windows=(1, 1.5, 2),
         axes=(1,),
         right_points=inds_68['right_brow'],
         left_points=inds_68['left_brow'],
         verbose=verbose,
+        log=False,
     ).evaluate()
 
 
-def corrs_smile_alpha(verbose: bool = False):
+def corrs_smile(dataset: str, verbose: bool = False):
     WindowedCorrelations(
-        'corrs_smile_alpha',
-        data_dir / 'alpha',
+        f'corrs_smile_{dataset}',
+        data_dir / dataset,
         'FaExtractor',
         'all',
         (0.65, 6.0),
-        'S',
+        exercises['smile'],
         'hypomimia',
         windows=(1.5,),
         axes=(0, 1),
         right_points=inds_68['right_lips'],
         left_points=inds_68['left_lips'],
         verbose=verbose,
+        log=False,
     ).evaluate()
 
 
