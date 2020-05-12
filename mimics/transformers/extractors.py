@@ -187,7 +187,7 @@ class SanExtractor(VideoLandmarksExtractor):
         verbose: bool = False,
     ):
         super().__init__(model_path, n_jobs, device, verbose)
-        self.detector = SAN.SanLandmarkDetector(model_path, device)
+        self.detector = SAN.SanLandmarkDetector(self.model_path, self.device)
 
     def _transform(self, videos):
         dataset = []

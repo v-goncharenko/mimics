@@ -14,8 +14,6 @@ from .base import BaseExperiment
 @dataclass
 class WindowedCorrelations(BaseExperiment):
     '''Plots windowed correlations for points
-
-    Note: only Y coordinate correlations are plotted
     '''
 
     device: Device = 'cpu'

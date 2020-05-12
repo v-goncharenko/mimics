@@ -13,7 +13,7 @@ from ..utils import default_device
 @dataclass
 class BaseExperiment(object):
     '''Provides common parameters and preparation to start an experiment
-    Base class for all the others
+    Base class for most experiments
 
     Args:
         name: name of the experiment for MLflow

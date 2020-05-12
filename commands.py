@@ -2,7 +2,12 @@ import fire
 import numpy as np
 
 from mimics.classifiers import clfs_full, scores
-from mimics.experiments import CrossvalidatedCsp, GridSearch, WindowedCorrelations
+from mimics.experiments import (
+    CrossvalidatedCsp,
+    DrawKeypoints,
+    GridSearch,
+    WindowedCorrelations,
+)
 from mimics.transformers.extractors import inds_68
 from mimics.types import Device
 from mimics.utils import data_dir, default_device
@@ -200,6 +205,10 @@ def corrs_smile_alpha(verbose: bool = False):
         left_points=inds_68['left_lips'],
         verbose=verbose,
     ).evaluate()
+
+
+def draw_alpha(verbose: bool = False):
+    DrawKeypoints(data_dir / 'alpha', cutoff=2.5, verbose=verbose,).evaluate()
 
 
 if __name__ == "__main__":

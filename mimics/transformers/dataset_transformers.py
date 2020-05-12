@@ -112,15 +112,25 @@ class Resampler(DatasetTransformer):
 class ConditionalFilter(DatasetTransformer):
     '''Applies digital bandpass filter to signals in a dataset
         according to each signal's rate
+
+    Args:
+        btype: type of filter. one of 'highpass', 'lowpass', 'bandpass',
+            'guess' chooses bandpass if it's applicable
+            otherwise 'highpass' with lower cutoff
+            (choice is made for each record separatly based on its fps)
     '''
 
     cutoffs: Tuple[float]
     order: int
+    btype: str = 'guess'
     preserve_mean: bool = False
 
     def transform(self, dataset):
         for i, fps in enumerate(dataset.markup['fps']):
-            if all(2 * cut < fps for cut in self.cutoffs):
+            if self.btype != 'guess':
+                btype = self.btype
+                cutoffs = self.cutoffs
+            elif all(2 * cut < fps for cut in self.cutoffs):
                 btype = 'bandpass'
                 cutoffs = self.cutoffs
             else:

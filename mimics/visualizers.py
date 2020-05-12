@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from IPython.display import HTML
 
-from .types import File, Iterable, Optional, Shapes
+from .types import File, Iterable, Optional, Shapes, Union
 from .utils import frames, open_video
 
 
@@ -75,11 +75,11 @@ def shapes_animation(
 
 def points_on_video(
     video: File,
-    shapes: Shapes,
-    fps: int,
+    shapes: Union[dict, Shapes],
+    fps: float,
     *,
     title: str = '',
-    figsize: tuple = (10, 10),
+    figsize: tuple = (10, 7),
     html5: bool = True,
     save_to: Optional[File] = None,
 ):
@@ -92,26 +92,38 @@ def points_on_video(
         html5: see `anim2html`
         save_to: path to save video to. If None - animation is returned
     '''
+    if isinstance(shapes, dict):
+        named_shapes = shapes
+        legend = True
+    else:
+        named_shapes = {'': shapes}
+        legend = False
     interval = 1000 / fps
 
-    figure = plt.figure(figsize=figsize)
+    figure = plt.figure(figsize=figsize, constrained_layout=True)
+    image = plt.imshow(next(iter(frames(video))))
+    lines = []
+    for name, shapes in named_shapes.items():
+        lines.append(plt.plot(shapes[0, :, 0], shapes[0, :, 1], 'o', label=name)[0])
 
     plt.title(title)
     plt.grid(False)
+    if legend:
+        plt.legend(
+            fontsize=15, frameon=True, facecolor='w', edgecolor='r', framealpha=0.8
+        )
 
-    image = plt.imshow(next(iter(frames(video))))
-    line = plt.plot(shapes[0, :, 0], shapes[0, :, 1], 'og')[0]
-
-    def update_line(input_: tuple):
-        frame, shape = input_
+    def update_line(input_tuple: tuple):
+        index, frame = input_tuple
         image.set_data(frame)
-        line.set_data(shape[:, 0], shape[:, 1])
-        return (image, line)
+        for line, (_, shapes) in zip(lines, named_shapes.items()):
+            line.set_data(shapes[index, :, 0], shapes[index, :, 1])
+        return (image, *lines)
 
     anim = animation.FuncAnimation(
         figure,
         update_line,
-        zip(frames(video), shapes),
+        enumerate(frames(video)),
         save_count=len(shapes),
         interval=interval,
         blit=True,
