@@ -61,7 +61,9 @@ class BaseExperiment(object):
         preproc = get_preprocessing(self.points, *self.cutoffs)
         self.state.dataset = FaceLandmarksDataset(self.dataset_dir, extr, preproc)
 
-        self.state.mask = self.state.dataset.markup['exercise'] == self.exercise
+        self.state.mask = (self.state.dataset.markup['exercise'] == self.exercise) & (
+            self.state.dataset.markup['hypomimia'] != -1
+        )
         self.state.features = self.state.dataset.data[self.state.mask]
         self.state.labels = self.state.dataset.labels(self.labeling)[self.state.mask]
 

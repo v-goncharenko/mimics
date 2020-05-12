@@ -102,7 +102,7 @@ def plot_csp(dataset: str, exercise: str, cv: int = 5, verbose: bool = False):
         data_dir / dataset,
         'FaExtractor',
         points[exercise],
-        (0.45, 5.0),
+        (0.45, 3.0),
         exercises[exercise],
         'hypomimia',
         cv=cv,
