@@ -1,7 +1,10 @@
+from dataclasses import dataclass
+
 import numpy as np
 from mne.decoding import CSP
 from pyriemann.classification import MDM
 from pyriemann.estimation import ERPCovariances
+from pyriemann.spatialfilters import Xdawn
 from pyriemann.tangentspace import TangentSpace
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.ensemble import RandomForestClassifier
@@ -9,7 +12,30 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
 
-from .transformers import Flattener, PointsToChannels
+from .transformers import Flattener, PointsToChannels, Transformer
+
+
+@dataclass
+class XdawnFixed(Transformer):
+    '''This fixes a bug (related to sklearn infrustructure) in original Xdawn implementation
+    '''
+
+    nfilter: int = 4
+    classes: tuple = None
+    estimator: str = 'scm'
+    baseline_cov: np.ndarray = None
+
+    def __post_init__(self):
+        self._xdawn = Xdawn(self.nfilter, self.classes, self.estimator, self.baseline_cov)
+
+    def fit(self, X, y):
+        if not hasattr(self, 'xdawn'):
+            self.__post_init__()
+        self._xdawn.fit(X, y)
+        return self
+
+    def transform(self, X):
+        return self._xdawn.transform(X)
 
 
 scores = ('accuracy', 'precision', 'recall', 'f1', 'roc_auc')
@@ -65,19 +91,18 @@ clfs_full = {  # {model_name: (model, params_dict)}
         },
     ),
 
-    # from pyriemann.spatialfilters import Xdawn
-    # 'Xdawn LDA': (
-    #     make_pipeline(
-    #         PointsToChannels(),
-    #         Xdawn(),
-    #         Flattener(),
-    #         LDA(shrinkage='auto', solver='eigen'),
-    #     ),
-    #     {
-    #         'xdawn__nfilter': (2, 4, 6),
-    #         'xdawn__estimator': ('scm', 'lwf', 'oas'),
-    #     },
-    # ),
+    'Xdawn LDA': (
+        make_pipeline(
+            PointsToChannels(),
+            XdawnFixed(),
+            Flattener(),
+            LDA(shrinkage='auto', solver='eigen'),
+        ),
+        {
+            'xdawnfixed__nfilter': (2, 4, 6),
+            'xdawnfixed__estimator': ('scm', 'lwf', 'oas'),
+        },
+    ),
 
     'ERPCov TS LR': (
         make_pipeline(
