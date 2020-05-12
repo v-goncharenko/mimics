@@ -1,0 +1,7 @@
+md5: 89d2308ebc260f57028d08bb589606f3
+outs:
+- md5: 4089f5fb67a4b1281d5aac4fe3a05e20
+  path: tsfresh.ipynb
+  cache: true
+  metric: false
+  persist: false
