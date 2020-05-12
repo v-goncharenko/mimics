@@ -43,17 +43,22 @@ def gridsearch(
     ).evaluate()
 
 
-def low_brows_alpha(
-    cv: int = 5, n_jobs: int = 1, device: Device = default_device, verbose: bool = False
+def low_gridsearch(
+    dataset: str,
+    exercise: str,
+    cv: int = 5,
+    n_jobs: int = 1,
+    device: Device = default_device,
+    verbose: bool = False,
 ):
     for low in np.arange(0.1, 1, 0.1):
         GridSearch(
-            'low_brows_alpha',
-            data_dir / 'alpha',
+            f'low_{exercise}_{dataset}',
+            data_dir / dataset,
             'FaExtractor',
-            'brows',
-            (low, 3.0),
-            'B',
+            points[exercise],
+            (low, 4.0),
+            exercises[exercise],
             'hypomimia',
             clfs=clfs_full,
             scores=scores,
@@ -64,28 +69,9 @@ def low_brows_alpha(
         ).evaluate()
 
 
-def low_smile_alpha(
-    cv: int = 5, n_jobs: int = 1, device: Device = default_device, verbose: bool = False
-):
-    for low in np.arange(0.1, 1, 0.1):
-        GridSearch(
-            'low_smile_alpha',
-            data_dir / 'alpha',
-            'FaExtractor',
-            'lips',
-            (low, 3.0),
-            'S',
-            'hypomimia',
-            clfs=clfs_full,
-            scores=scores,
-            cv=cv,
-            n_jobs=n_jobs,
-            device=device,
-            verbose=verbose,
-        ).evaluate()
-
-
-def high_brows_alpha(
+def high_gridsearch(
+    dataset: str,
+    exercise: str,
     low: float = 0.45,
     cv: int = 5,
     n_jobs: int = 1,
@@ -94,37 +80,12 @@ def high_brows_alpha(
 ):
     for high in np.arange(2, 10, 1):
         GridSearch(
-            'high_brows_alpha',
-            data_dir / 'alpha',
+            f'high_{exercise}_{dataset}',
+            data_dir / dataset,
             'FaExtractor',
-            'brows',
-            (low, high),
-            'B',
-            'hypomimia',
-            clfs=clfs_full,
-            scores=scores,
-            cv=cv,
-            n_jobs=n_jobs,
-            device=device,
-            verbose=verbose,
-        ).evaluate()
-
-
-def high_smile_alpha(
-    low: float = 0.65,
-    cv: int = 5,
-    n_jobs: int = 1,
-    device: Device = default_device,
-    verbose: bool = False,
-):
-    for high in np.arange(2, 10, 1):
-        GridSearch(
-            'high_smile_alpha',
-            data_dir / 'alpha',
-            'FaExtractor',
-            'lips',
-            (low, high),
-            'S',
+            points[exercise],
+            (0.5, high),
+            exercises[exercise],
             'hypomimia',
             clfs=clfs_full,
             scores=scores,
