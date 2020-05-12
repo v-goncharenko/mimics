@@ -52,4 +52,3 @@ class DrawKeypoints(object):
                 title=f'recording {i}',
                 save_to=save_file,
             )
-            break
