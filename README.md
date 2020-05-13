@@ -25,11 +25,10 @@ For development:
 
 ## Experiments reproduction
 
-Could be performed by `mlflow` utilites e.g. for basic brows crossvalidation
+Available through `commands.py` where each function exposes and experiment.
+Experiment either logs results to `mlflow` or writes artifact files to `data/tmp`
 
-`mlflow run . -e brows_alpha -P cv=5 -P n_jobs=-1 -P verbose=1 --no-conda`
-
-## Optimal params
+## Optimal params (alpha)
 * brows (alpha)
   * low: 0.45, high: 5.0
 * smile (alpha)
