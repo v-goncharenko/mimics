@@ -9,6 +9,7 @@ import numpy as np
 import torch
 from scipy import signal
 from sklearn import metrics
+from sklearn.metrics import confusion_matrix
 
 from .types import Device, Directory, File, Iterable, Tuple, Union
 
@@ -212,3 +213,8 @@ def copy(source: File, dest: Union[File, Directory]):
 def score(name: str, true_labels, predictions, **kwargs):
     score_funct = getattr(metrics, f'{name}_score')
     return score_funct(true_labels, predictions, **kwargs)
+
+
+def specificity_score(y_true, y_pred):
+    tn, fp, _, _ = confusion_matrix(y_true, y_pred).ravel()
+    return tn / (tn + fp)

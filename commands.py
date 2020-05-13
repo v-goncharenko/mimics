@@ -10,7 +10,7 @@ from mimics.experiments import (
 )
 from mimics.transformers.extractors import inds_68
 from mimics.types import Device
-from mimics.utils import data_dir, default_device
+from mimics.utils import data_dir
 
 
 points = {'brows': 'brows', 'smile': 'lips'}
@@ -23,7 +23,7 @@ def gridsearch(
     exercise: str,
     cv: int = 5,
     n_jobs: int = 1,
-    device: Device = default_device,
+    device: Device = 'cpu',
     verbose: bool = False,
 ):
     GridSearch(
@@ -46,9 +46,10 @@ def gridsearch(
 def low_gridsearch(
     dataset: str,
     exercise: str,
+    high: float = 4.0,
     cv: int = 5,
     n_jobs: int = 1,
-    device: Device = default_device,
+    device: Device = 'cpu',
     verbose: bool = False,
 ):
     for low in np.arange(0.1, 1, 0.1):
@@ -57,7 +58,7 @@ def low_gridsearch(
             data_dir / dataset,
             'FaExtractor',
             points[exercise],
-            (low, 4.0),
+            (low, high),
             exercises[exercise],
             'hypomimia',
             clfs=clfs_full,
@@ -72,10 +73,10 @@ def low_gridsearch(
 def high_gridsearch(
     dataset: str,
     exercise: str,
-    low: float = 0.45,
+    low: float = 0.4,
     cv: int = 5,
     n_jobs: int = 1,
-    device: Device = default_device,
+    device: Device = 'cpu',
     verbose: bool = False,
 ):
     for high in np.arange(2, 10, 1):
@@ -84,7 +85,7 @@ def high_gridsearch(
             data_dir / dataset,
             'FaExtractor',
             points[exercise],
-            (0.5, high),
+            (low, high),
             exercises[exercise],
             'hypomimia',
             clfs=clfs_full,

@@ -9,10 +9,12 @@ from pyriemann.tangentspace import TangentSpace
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import make_scorer
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
 
 from .transformers import Flattener, PointsToChannels, Transformer
+from .utils import specificity_score
 
 
 @dataclass
@@ -38,7 +40,8 @@ class XdawnFixed(Transformer):
         return self._xdawn.transform(X)
 
 
-scores = ('accuracy', 'precision', 'recall', 'f1', 'roc_auc')
+scores = {name: name for name in ('accuracy', 'precision', 'recall', 'f1', 'roc_auc')}
+scores['specificity'] = make_scorer(specificity_score)
 
 max_iter = 2500  # for Logistic Regression
 
