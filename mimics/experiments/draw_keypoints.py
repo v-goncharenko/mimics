@@ -30,16 +30,16 @@ class DrawKeypoints(object):
         save_file = save_dir / f'{filename.stem}_points.mp4'
         if save_file.exists():
             if verbose:
-                print(f'{i} exists')
+                print(f"{row['id']} exists")
             return
 
         if verbose:
-            print(f'{i} is generating')
+            print(f"{row['id']} is generating")
         points_on_video(
             filename,
             {name: ds[i] for name, ds in datasets.items()},
             row['fps'],
-            title=f'recording {i}',
+            title=f"recording {row['id']}",
             save_to=save_file,
         )
 
