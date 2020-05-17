@@ -69,6 +69,10 @@ class VideoLandmarksExtractor(Transformer):
         '''
         return self._transform(videos)
 
+    @property
+    def name(self):
+        return self.__class__.__name__
+
 
 class DlibExtractor(VideoLandmarksExtractor):
     '''Extraction based on dlib trained models

@@ -135,22 +135,22 @@ def plot_image(
     *,
     figsize: tuple = (20, 5),
     boxes: tuple = (),
-    opencv=True,
+    opencv=False,
     extra_operations=lambda: None,
 ):
     '''
-    boxes - list of bboxes in 'tlbr' format
-        remember that matplotlib's coordinates x is horizontal, y is vertical
-    extra_operations - lambda with everything you want to do to plt
+    Args:
+        boxes: list of bboxes in 'tlbr' format
+            remember that matplotlib's coordinates x is horizontal, y is vertical
+        opencv: channels sequence from opencv (BGR), so it need to be reversed
+        extra_operations: lambda with everything you want to do to plt
     '''
     if opencv:  # to reverse colours from BGR
         image = image[..., ::-1]
 
-    plt.figure(figsize=figsize)
-    plt.imshow(image,)
+    plt.figure(figsize=figsize, constrained_layout=True)
+    plt.imshow(image)
     plt.title(title)
-    plt.xlabel('Y (first coordinate)')
-    plt.ylabel('X (second coordinate)')
     for box in boxes:
         rect = patches.Rectangle(
             (box[0], box[1]),

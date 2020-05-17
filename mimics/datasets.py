@@ -7,6 +7,7 @@ from torch.utils.data import Dataset
 from .transformers import DatasetTransformer
 from .transformers import extractors as extrs
 from .types import Directory, File, Optional
+from .utils import frames
 from .visualizers import points_on_video
 
 
@@ -27,6 +28,7 @@ class FaceLandmarksDataset(Dataset):
         transformer: Optional[DatasetTransformer] = None,
         *,
         compute_fps: bool = True,
+        compute_ratios: bool = False,
     ):
         '''
         Args:
@@ -34,6 +36,7 @@ class FaceLandmarksDataset(Dataset):
             compute_fps: if True drops fps from markup and computes fps as
                 actual frames number divided by record duration (from markup).
                 Else uses values from markup as is
+            compute_ratios: ratios of face to frame height/width
         '''
         self.path = path
         self.extractor = extractor
@@ -41,23 +44,20 @@ class FaceLandmarksDataset(Dataset):
 
         self.markup = pd.read_csv(self.path / self.markup_filename)
 
-        precomp_path = (
-            self.path / self.precomputed_dir / f'{extractor.__class__.__name__}.pickle'
-        )
-        if precomp_path.exists():
-            with open(precomp_path, 'rb') as file:
-                self.data = pickle.load(file)
-        else:
-            self.data = self.extractor.fit_transform(
-                [self.path / filename for filename in self.markup['filename']]
-            )
-            precomp_path.parent.mkdir(exist_ok=True)
-            with open(precomp_path, 'wb') as file:
-                pickle.dump(self.data, file)
+        self._extract_shapes()
 
         if compute_fps:
-            frames = np.array([len(rec) for rec in self.data])
-            self.markup['fps'] = frames / self.markup['duration']
+            frames_count = np.array([len(rec) for rec in self.data])
+            self.markup['fps'] = frames_count / self.markup['duration']
+
+        if compute_ratios:
+            ratios = []
+            for i in range(self.len):
+                h, w, _ = next(frames(self.filename(i))).shape
+                points = self[i][0]
+                face = points.max(axis=0) - points.min(axis=0)
+                ratios.append(int(round(max(face[0] / w, face[1] / h) * 100)))
+            self.markup['face_ratio'] = ratios
 
         if self.transformer:
             self.transformer.fit_transform(self)
@@ -71,9 +71,22 @@ class FaceLandmarksDataset(Dataset):
     def __repr__(self):
         return (
             f'FaceLandmarksDataset of {len(self)} records\n'
-            f'extracted by {self.extractor.__class__.__name__}\n'
+            f'extracted by {self.extractor.name}\n'
             f'minimal shape {min(self, key=lambda record: record.shape).shape}'
         )
+
+    def _extract_shapes(self):
+        precomp_path = self.path / self.precomputed_dir / f'{self.extractor.name}.pickle'
+        if precomp_path.exists():
+            with open(precomp_path, 'rb') as file:
+                self.data = pickle.load(file)
+        else:
+            self.data = self.extractor.fit_transform(
+                [self.filename(i) for i in range(self.len)]
+            )
+            precomp_path.parent.mkdir(exist_ok=True)
+            with open(precomp_path, 'wb') as file:
+                pickle.dump(self.data, file)
 
     @property
     def len(self):
