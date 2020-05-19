@@ -115,6 +115,11 @@ class FaceLandmarksDataset(Dataset):
     def fps(self, index: int):
         return self.markup.loc[index, 'fps']
 
+    def id(self, index: int):
+        '''Returns id of record by index
+        '''
+        return self.markup.loc[index, 'id']
+
     def video(self, index: int, *, html5: bool = True, save_to: Optional[File] = None):
         return points_on_video(
             self.filename(index),
