@@ -29,7 +29,7 @@ def gridsearch(
     GridSearch(
         f'{exercise}_{dataset}',
         data_dir / dataset,
-        'FaExtractor',
+        'fa',
         points[exercise],
         cutoffs[exercise],
         exercises[exercise],
@@ -56,7 +56,7 @@ def low_gridsearch(
         GridSearch(
             f'low_{exercise}_{dataset}',
             data_dir / dataset,
-            'FaExtractor',
+            'fa',
             points[exercise],
             (low, high),
             exercises[exercise],
@@ -83,7 +83,7 @@ def high_gridsearch(
         GridSearch(
             f'high_{exercise}_{dataset}',
             data_dir / dataset,
-            'FaExtractor',
+            'fa',
             points[exercise],
             (low, high),
             exercises[exercise],
@@ -101,7 +101,7 @@ def plot_csp(dataset: str, exercise: str, cv: int = 5, verbose: bool = False):
     CrossvalidatedCsp(
         f'csp_{exercise}_{dataset}',
         data_dir / dataset,
-        'FaExtractor',
+        'fa',
         points[exercise],
         (0.4, 3.0),
         exercises[exercise],
@@ -116,7 +116,7 @@ def corrs_brows(dataset: str, verbose: bool = False):
     WindowedCorrelations(
         f'corrs_brows_{dataset}',
         data_dir / dataset,
-        'FaExtractor',
+        'fa',
         'all',
         (0.45, 5.0),
         exercises['brows'],
@@ -134,7 +134,7 @@ def corrs_smile(dataset: str, verbose: bool = False):
     WindowedCorrelations(
         f'corrs_smile_{dataset}',
         data_dir / dataset,
-        'FaExtractor',
+        'fa',
         'all',
         (0.65, 6.0),
         exercises['smile'],

@@ -17,7 +17,8 @@ class BaseExperiment(object):
 
     Args:
         name: name of the experiment for MLflow
-        extractor: classname of Extractor see `.tranformers.extractors`
+        extractor: lowercased firts part of class name of Extractor
+            e.g. 'dlib', see `.tranformers.extractors`
         points: param for `get_preprocessing`
         cutoffs: tuple of low and high frequencies to filter signals
         exercise: 'B' for brows, 'S' for smile
@@ -45,7 +46,7 @@ class BaseExperiment(object):
     state_fields: ClassVar[str] = 'dataset cv mask labels features'
 
     def get_extractor(self):
-        extr_class = getattr(extractors, self.extractor)
+        extr_class = getattr(extractors, self.extractor.title() + 'Extractor')
         return extr_class(None, self.n_jobs, self.device, self.verbose)
 
     def evaluate(self):
@@ -61,8 +62,11 @@ class BaseExperiment(object):
         preproc = get_preprocessing(self.points, *self.cutoffs)
         self.state.dataset = FaceLandmarksDataset(self.dataset_dir, extr, preproc)
 
-        self.state.mask = (self.state.dataset.markup['exercise'] == self.exercise) & (
-            self.state.dataset.markup['hypomimia'] != -1
+        self.state.mask = (
+            (self.state.dataset.markup['exercise'] == self.exercise)
+            & (self.state.dataset.markup['hypomimia'] != -1)
+            & (self.state.dataset.markup['defect'] != 1)
+            & (self.state.dataset.markup[self.extractor] > 0.5)
         )
         self.state.features = self.state.dataset.data[self.state.mask]
         self.state.labels = self.state.dataset.labels(self.labeling)[self.state.mask]
