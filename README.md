@@ -7,16 +7,18 @@
 `setup.py` is planned, for now manual installation
 
 For usage:
+
 1. install miniconda (or `virtualenv` although not tested)
 2. create `mimics` env (see `.python-version` for version)
 3. install building tools: `sudo apt update && sudo apt install -y build-essential`
-4. `cmake`: `sudo snap install cmake --classic` works for ubuntu
+4. `cmake`: `sudo snap install cmake --classic` works for ubuntu (this is needed for `dlib`, [instructions for macos](https://stackoverflow.com/questions/54719496/installing-dlib-in-python-on-mac/63140828))
 5. seems like this is needed for OpenCV to work on Ubuntu: `sudo apt install -y libsm6 libxext6 libxrender-dev`
 6. install `ffmpeg`: `sudo apt install -y ffmpeg`
 7. load `dlib` weights with `mimics/load_weights.sh` (run it from its parent directory)
 8. For usage just `pip install -r requirements.txt`
 
 For development:
+
 * install `dvc`
 * install `pre-commit` (I prefer to install it separately)
 * run `pip install -r requirements-dev.txt`
@@ -29,6 +31,7 @@ Available through `commands.py` where each function exposes and experiment.
 Experiment either logs results to `mlflow` or writes artifact files to `data/tmp`
 
 ## Optimal params (alpha)
+
 * brows (alpha)
   * low: 0.45, high: 5.0
 * smile (alpha)
@@ -62,16 +65,18 @@ Points are reffered "left" and "right" always from person's point of view.
 
 Используется библиотека [dlib](https://github.com/davisking/dlib)
 Порядок действий:
+
 * производится определение положения лица функцией `get_frontal_face_detector`
 * далее на основе этого функцией `shape_predictor` и параметров [`shape_predictor_68_face_landmarks`](https://github.com/davisking/dlib-models) выделяется [68 точек](https://ibug.doc.ic.ac.uk/resources/facial-point-annotations/), являющихся очертаниями лица человека
 
 *Плюсы*:
-- работает локально на CPU
-- легодоступна, интегрирована в нашу систему
-- стабильна (относительно программной совместимости)
+
+* работает локально на CPU
+* легодоступна, интегрирована в нашу систему
+* стабильна (относительно программной совместимости)
 
 *Минусы*:
-- очень слабо работает с движениями бровей/губ, сильно шумит при мимических движениях, постоянно сбивается
+* очень слабо работает с движениями бровей/губ, сильно шумит при мимических движениях, постоянно сбивается
 
 ### Face Alignment
 
@@ -138,6 +143,7 @@ AU R-CNN - https://arxiv.org/pdf/1812.05788v2.pdf
 Текущая оптимальная схема выдаётся в функции `get_preprocessing`
 
 Ideas:
+
 * augment time series (flip, multiplication, etc) as well as videos before extracting points
 
 ## Classification and analysis
