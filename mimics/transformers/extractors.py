@@ -5,10 +5,9 @@ from typing import Iterable, List
 import dlib
 import face_alignment
 import numpy as np
+import SAN
 import torch
 from joblib import Parallel, delayed
-
-import SAN
 
 from ..types import Device, File, Optional
 from ..utils import default_device, frames

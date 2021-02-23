@@ -67,7 +67,7 @@ def shapes_animation(
         return (line,)
 
     anim = animation.FuncAnimation(
-        figure, update_line, len(shapes), interval=interval, blit=True,
+        figure, update_line, len(shapes), interval=interval, blit=True
     )
 
     return anim2html(anim, html5)

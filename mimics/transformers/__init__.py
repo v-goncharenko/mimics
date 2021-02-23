@@ -31,7 +31,7 @@ def get_preprocessing(
     resample_to: Optional[float] = None,
     *,
     steps: Optional[int] = None,
-    preserve_mean: bool = False
+    preserve_mean: bool = False,
 ):
     '''Makes preprocessing pipeline of face shapes for classification
 

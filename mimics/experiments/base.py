@@ -88,8 +88,5 @@ class BaseExperiment(object):
         )
 
         mlflow.log_metrics(
-            {
-                'records': len(self.state.labels),
-                'class_balance': self.state.labels.mean(),
-            }
+            {'records': len(self.state.labels), 'class_balance': self.state.labels.mean()}
         )
