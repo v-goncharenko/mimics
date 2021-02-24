@@ -41,6 +41,12 @@ ensure_newline_before_comments = true
 line_length = 90
 lines_after_imports = 2
 
+[tool.pylint.messages_control]
+disable = "C0330, C0326"
+
+[tool.pylint.format]
+max-line-length = "90"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
