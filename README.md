@@ -23,11 +23,11 @@ For usage:
 
 For development:
 
-- install `dvc`
-- install `pre-commit` (I prefer to install it separately)
-- run `pip install -r requirements-dev.txt`
-- run `pre-commint install`
-- run `dvc pull` to get all datasets and models (may take a few dozens of minutes)
+-   install `dvc`
+-   install `pre-commit` (I prefer to install it separately)
+-   run `pip install -r requirements-dev.txt`
+-   run `pre-commint install`
+-   run `dvc pull` to get all datasets and models (may take a few dozens of minutes)
 
 ## Experiments reproduction
 
@@ -36,10 +36,10 @@ either logs results to `mlflow` or writes artifact files to `data/tmp`
 
 ## Optimal params (alpha)
 
-- brows (alpha)
-  - low: 0.45, high: 5.0
-- smile (alpha)
-  - low: 0.65, high: 7.0
+-   brows (alpha)
+    -   low: 0.45, high: 5.0
+-   smile (alpha)
+    -   low: 0.65, high: 7.0
 
 # General scheme
 
@@ -82,22 +82,22 @@ https://paperswithcode.com/task/face-alignment
 
 Используется библиотека [dlib](https://github.com/davisking/dlib) Порядок действий:
 
-- производится определение положения лица функцией `get_frontal_face_detector`
-- далее на основе этого функцией `shape_predictor` и параметров
-  [`shape_predictor_68_face_landmarks`](https://github.com/davisking/dlib-models)
-  выделяется [68 точек](https://ibug.doc.ic.ac.uk/resources/facial-point-annotations/),
-  являющихся очертаниями лица человека
+-   производится определение положения лица функцией `get_frontal_face_detector`
+-   далее на основе этого функцией `shape_predictor` и параметров
+    [`shape_predictor_68_face_landmarks`](https://github.com/davisking/dlib-models)
+    выделяется [68 точек](https://ibug.doc.ic.ac.uk/resources/facial-point-annotations/),
+    являющихся очертаниями лица человека
 
 _Плюсы_:
 
-- работает локально на CPU
-- легодоступна, интегрирована в нашу систему
-- стабильна (относительно программной совместимости)
+-   работает локально на CPU
+-   легодоступна, интегрирована в нашу систему
+-   стабильна (относительно программной совместимости)
 
 _Минусы_:
 
-- очень слабо работает с движениями бровей/губ, сильно шумит при мимических движениях,
-  постоянно сбивается
+-   очень слабо работает с движениями бровей/губ, сильно шумит при мимических движениях,
+    постоянно сбивается
 
 ### Face Alignment
 
@@ -170,20 +170,20 @@ AU R-CNN - https://arxiv.org/pdf/1812.05788v2.pdf Эта сетка может �
 
 Ideas:
 
-- augment time series (flip, multiplication, etc) as well as videos before extracting
-  points
+-   augment time series (flip, multiplication, etc) as well as videos before extracting
+    points
 
 ## Classification and analysis
 
 ### Methods for feature extraction from brows oscilation
 
-- statsmodels.tsa.seasonal.seasonal_decompose - apply to mean of all channels plot
-  detected frequency and try to split by it
-- scipy findpeaks -
-- fft analysis
+-   statsmodels.tsa.seasonal.seasonal_decompose - apply to mean of all channels plot
+    detected frequency and try to split by it
+-   scipy findpeaks -
+-   fft analysis
 
 ### Classification algos variants
 
-- лин. модели как бейзлайн
-- леса над семантическими фичами
-- сетки: автоэнкодер + FC predictor
+-   лин. модели как бейзлайн
+-   леса над семантическими фичами
+-   сетки: автоэнкодер + FC predictor
